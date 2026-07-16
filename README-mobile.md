@@ -1,7 +1,21 @@
-# Daily Planner — Android APK Install Guide
+# Daily Planner — Phone Install Guide
+
+## Abhi turant: phone home screen pe install (PWA)
+
+Ye APK nahi hai, lekin phone pe app icon banega aur fullscreen app jaisa khulega.
+
+1. Lovable me **Publish** dabao.
+2. Live `.lovable.app` link apne Android phone ke **Chrome** me kholo.
+3. App ke header me **Install app** button dikhe to tap karo.
+4. Agar button prompt na khole: Chrome menu (⋮) → **Install app** / **Add to Home Screen**.
+5. Home screen pe **Daily Planner** icon aa jayega.
+
+---
+
+## Baad me: real APK (Play Store app jaisa install)
 
 Aapko laptop pe Android Studio ya Java install karne ki zaroorat **nahi** hai.
-Sab kuch GitHub cloud me automatic build hoga. Bas 3 step:
+Sab kuch GitHub cloud me automatic build hoga. Bas GitHub connect hona zaroori hai.
 
 ## Step 1 — GitHub pe push karo
 
@@ -20,12 +34,12 @@ Sab kuch GitHub cloud me automatic build hoga. Bas 3 step:
 ## Step 3 — APK download & install
 
 1. Build complete hone pe us run ko kholo
-2. Page ke sabse niche **Artifacts** section me **app-debug-apk** dikhega
-3. Us pe click karke ZIP download karo → extract karo → `app-debug.apk` milega
+2. Page ke sabse niche **Artifacts** section me **Daily-Planner-debug-apk** dikhega
+3. Us pe click karke ZIP download karo → extract karo → `Daily-Planner-debug.apk` milega
 4. APK ko phone me bhejo (WhatsApp / Google Drive / USB)
 5. Phone me file kholo → "Install unknown apps" allow karo → **Install** ✅
 
-Ho gaya! App ab Play Store app jaise home screen pe hoga. Notifications, reminders (7am/11pm water, 30/15/5 min task alerts, 11pm journal, 11:59pm AI rating) sab native chalenge — app band ho ya phone reboot ho, tab bhi.
+Ho gaya! App ab normal Android APK ki tarah installed hoga.
 
 ---
 
@@ -56,5 +70,8 @@ Jab aap Google Play Store pe app daalna chahoge:
 ## Troubleshooting
 
 - **"Install blocked"**: Phone settings me apne browser/file manager ke liye "Install unknown apps" allow karo.
-- **Actions run fail**: Logs kholo, error mujhe (Lovable) bhejo — fix kar dunga.
+- **GitHub Connect nahi khul raha**: `.lovable/github-connect-checklist.md` follow karo.
+- **Support ko message bhejna hai**: `.lovable/support-message.md` copy-paste karo.
+- **GitHub ke bina backup chahiye**: `.lovable/apk-plan-b.md` dekho.
+- **Actions run fail**: Logs kholo, error mujhe bhejo — fix kar dunga.
 - **Purana app update nahi ho raha**: `capacitor.config.ts` me `appId` same rakho (`com.avinash.dailyplanner`) — badalne pe naya app ban jata hai.

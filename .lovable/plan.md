@@ -1,34 +1,36 @@
-## Plan A — PWA install polish (abhi)
+## Plan: Phone se app install abhi + APK path ko ready rakhna
 
-Aapka PWA setup pehle se 90% ready hai (`manifest.webmanifest`, icons, head tags sab set). Sirf ek chhota install helper add karna hai taaki phone pe Chrome ka install prompt easily use ho sake.
+### Reality check
+Main GitHub authorization/support ticket aapke account se khud nahi kar sakta. GitHub Connect button ka OAuth approval aapke phone/browser me hi complete hoga. Lekin main app side aur APK build setup ko itna ready kar sakta hu ki GitHub connect hote hi APK ban jaye.
 
-### Changes
+### Part A — Abhi phone pe install jaisa experience
+1. **PWA install button verify/fix**
+   - Header me `Install app` button already add hua hai; main usko mobile pe safer banaunga.
+   - Android Chrome me prompt aaye to direct install dialog khulega.
+   - Agar prompt available nahi hua, app Chrome menu se install ho sakega because manifest/head tags already present hain.
 
-1. **`src/components/install-app-button.tsx` (new)**
-   - `beforeinstallprompt` event listen kare
-   - Jab event fire ho, ek chhota "Install app" button dikhaye (Today page ke header ke paas)
-   - Click pe `prompt()` call kare → user "Add" dabaye → home screen icon
-   - iOS (Safari) pe event nahi milta → wahaan ek tiny hint dikhaye: "Share → Add to Home Screen"
-   - Jab app already installed ho (`display-mode: standalone`) to button hide
+2. **Manifest polish**
+   - Manifest me Android installability fields verify karunga: `name`, `short_name`, `display: standalone`, `start_url`, `scope`, `theme_color`, icons.
+   - Service worker/offline cache nahi add karunga, kyunki aapne abhi sirf install chahiye bola hai.
 
-2. **`src/routes/__root.tsx`** — header ke right side (Sign out ke pehle) me `<InstallAppButton />` mount karna. Sirf tab dikhega jab install possible ho, warna invisible.
+3. **Publish ke baad phone steps**
+   - Aap Publish dabao.
+   - Phone Chrome me live link kholo.
+   - `Install app` button ya Chrome menu → `Install app / Add to Home Screen`.
 
-3. **No manifest changes, no service worker, no new deps.** Aapke `manifest.webmanifest`, `icon-512.png`, aur head tags jaise hain waise rahenge.
+### Part B — Baad me Play Store jaisa real APK
+1. **GitHub Actions APK workflow harden karna**
+   - Existing `.github/workflows/android-apk.yml` ko reliable banaunga.
+   - APK artifact ka naam clear rakhunga: `Daily-Planner-debug.apk`.
+   - Manual `Run workflow` aur automatic push build dono supported rahenge.
 
-### Aapko kya karna hoga
+2. **Phone-friendly APK guide improve karna**
+   - `README-mobile.md` me steps simple Hindi/Hinglish me update karunga.
+   - GitHub Connect, Actions, APK download, ZIP extract, unknown apps allow — sab phone ke hisaab se.
 
-1. Main change karunga → aap top-right **Publish** dabaoge.
-2. Publish hone ke baad live link (`...lovable.app`) apne phone Chrome me kholo.
-3. Ya to header me "Install app" button dikhega — tap karo → "Add".
-4. Ya Chrome menu (⋮) → **Install app** / **Add to Home Screen**.
-5. Home screen pe Daily Planner icon aa jayega, tap karke fullscreen app jaisa chalega.
+3. **GitHub connection issue helper docs**
+   - Support ko bhejne ke liye copy-paste message ready karunga.
+   - Android Chrome troubleshooting checklist add karunga: popups, cookies, desktop site, clear site data, alternate browser.
 
-### Parallel: GitHub connection issue
-
-Main khud se GitHub OAuth flow bypass nahi kar sakta (security), lekin aapke liye ready-to-send support message `.lovable/plan.md` me pehle se hai. Jab aap wapas aao, ye do kaam parallel karenge:
-- Aap support ko wo message bhej do (ya laptop/kisi aur device se ek baar GitHub connect kar lo)
-- Ek baar connect ho gaya → `.github/workflows/android-apk.yml` (already committed hai!) automatic real APK bana dega → download → install → **Play Store jaisa asli app**
-
-Matlab APK ka poora setup pehle se code me ready hai, sirf GitHub connect ka ek step baaki hai.
-
-Approve karo to Phase A ka install button add kar deta hu.
+### Result
+Abhi aap PWA ko app icon ki tarah use kar paoge. Jab aap wapas aake GitHub connect kar doge, main real APK route complete/verify kara dunga — Play Store app jaise install hone wala APK.
