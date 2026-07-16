@@ -11,6 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { RemindersManager } from "../components/reminders-manager";
 
 function NotFoundComponent() {
   return (
@@ -141,6 +142,7 @@ function RootComponent() {
 function AppLayout() {
   return (
     <div className="min-h-[100dvh] bg-background text-foreground flex flex-col">
+      <RemindersManager />
       <main className="flex-1 pb-24">
         <Outlet />
       </main>
