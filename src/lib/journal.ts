@@ -75,7 +75,19 @@ async function migrateLocalIfNeeded(userId: string) {
   const flagKey = `migrated_journal_${userId}`;
   const already = await store.getItem<boolean>(flagKey);
   if (already) return;
-  const rows: Array<Record<string, unknown>> = [];
+  type JournalInsert = {
+    user_id: string;
+    date: string;
+    water_count: number;
+    water_goal: number;
+    satisfied: string[];
+    unsatisfied: string[];
+    report_rating: number | null;
+    report_message: string | null;
+    report_tone: string | null;
+    report_generated_at: number | null;
+  };
+  const rows: JournalInsert[] = [];
   await store.iterate<DayEntry, void>((val, key) => {
     if (key.startsWith("migrated_")) return;
     if (!val || typeof val !== "object" || !("date" in val)) return;
