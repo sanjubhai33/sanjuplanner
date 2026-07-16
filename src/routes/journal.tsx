@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { todayISO } from "@/lib/journal";
+import { todayISO, loadRecentDays, type DayEntry } from "@/lib/journal";
 import { useDay, useUpdateDay } from "@/lib/use-journal";
 import { useTasks } from "@/lib/use-tasks";
 import { ensureReminders } from "@/lib/reminders";
@@ -27,14 +27,34 @@ function JournalPage() {
   const { data: tasks = [] } = useTasks();
   const update = useUpdateDay(date);
 
+  const [recentDays, setRecentDays] = useState<DayEntry[]>([]);
   useEffect(() => {
     ensureReminders();
-  }, []);
+    loadRecentDays(8).then(setRecentDays);
+  }, [day?.updatedAt]);
 
   if (!day) return null;
 
   const todaysTasks = tasks.filter((t) => t.date === date);
   const completed = todaysTasks.filter((t) => t.completed).length;
+
+  const history = useMemo(() => {
+    return recentDays
+      .filter((d) => d.date !== date)
+      .map((d) => {
+        const dayTasks = tasks.filter((t) => t.date === d.date);
+        return {
+          date: d.date,
+          totalTasks: dayTasks.length,
+          completedTasks: dayTasks.filter((t) => t.completed).length,
+          waterCount: d.waterCount,
+          waterGoal: d.waterGoal,
+          satisfiedCount: d.satisfied.length,
+          unsatisfiedCount: d.unsatisfied.length,
+          rating: d.reportRating,
+        };
+      });
+  }, [recentDays, tasks, date]);
 
   return (
     <div className="mx-auto max-w-md px-5 pt-10 space-y-6">
