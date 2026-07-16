@@ -288,6 +288,7 @@ function ReportCard(props: {
   tone?: "proud" | "shame" | "mixed";
   message?: string;
   history: HistoryItem[];
+  userName?: string;
   onReport: (r: { rating: number; tone: "proud" | "shame" | "mixed"; message: string }) => void;
 }) {
   const runReport = useServerFn(generateDailyReport);
@@ -303,6 +304,7 @@ function ReportCard(props: {
           satisfied: props.satisfied,
           unsatisfied: props.unsatisfied,
           history: props.history,
+          userName: props.userName,
         },
       }),
     onSuccess: (data) => props.onReport(data),
