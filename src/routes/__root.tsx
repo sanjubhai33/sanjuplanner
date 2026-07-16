@@ -142,6 +142,7 @@ function RootComponent() {
 function AppLayout() {
   return (
     <div className="min-h-[100dvh] bg-background text-foreground flex flex-col">
+      <RemindersManager />
       <main className="flex-1 pb-24">
         <Outlet />
       </main>
