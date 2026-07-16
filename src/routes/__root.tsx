@@ -154,13 +154,14 @@ function BottomNav() {
     { to: "/", label: "Today", icon: "sun" as const },
     { to: "/upcoming", label: "Upcoming", icon: "list" as const },
     { to: "/calendar", label: "Calendar", icon: "cal" as const },
+    { to: "/journal", label: "Journal", icon: "book" as const },
   ];
   return (
     <nav
       className="fixed bottom-0 inset-x-0 z-40 border-t border-border bg-card/95 backdrop-blur"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <ul className="mx-auto max-w-md grid grid-cols-3">
+      <ul className="mx-auto max-w-md grid grid-cols-4">
         {items.map((it) => (
           <li key={it.to}>
             <Link
@@ -178,7 +179,7 @@ function BottomNav() {
   );
 }
 
-function NavIcon({ name }: { name: "sun" | "list" | "cal" }) {
+function NavIcon({ name }: { name: "sun" | "list" | "cal" | "book" }) {
   const cls = "h-5 w-5";
   if (name === "sun")
     return (
@@ -192,6 +193,13 @@ function NavIcon({ name }: { name: "sun" | "list" | "cal" }) {
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={cls} strokeLinecap="round" strokeLinejoin="round">
         <path d="M8 6h13M8 12h13M8 18h13" />
         <circle cx="4" cy="6" r="1" /><circle cx="4" cy="12" r="1" /><circle cx="4" cy="18" r="1" />
+      </svg>
+    );
+  if (name === "book")
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={cls} strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 4v16a2 2 0 002 2h14V4a2 2 0 00-2-2H6a2 2 0 00-2 2z" />
+        <path d="M8 7h8M8 11h8M8 15h5" />
       </svg>
     );
   return (
