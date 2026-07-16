@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UpcomingRouteImport } from './routes/upcoming'
+import { Route as JournalRouteImport } from './routes/journal'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TaskNewRouteImport } from './routes/task.new'
@@ -18,6 +19,11 @@ import { Route as TaskIdRouteImport } from './routes/task.$id'
 const UpcomingRoute = UpcomingRouteImport.update({
   id: '/upcoming',
   path: '/upcoming',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JournalRoute = JournalRouteImport.update({
+  id: '/journal',
+  path: '/journal',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CalendarRoute = CalendarRouteImport.update({
@@ -44,6 +50,7 @@ const TaskIdRoute = TaskIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/calendar': typeof CalendarRoute
+  '/journal': typeof JournalRoute
   '/upcoming': typeof UpcomingRoute
   '/task/$id': typeof TaskIdRoute
   '/task/new': typeof TaskNewRoute
@@ -51,6 +58,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/calendar': typeof CalendarRoute
+  '/journal': typeof JournalRoute
   '/upcoming': typeof UpcomingRoute
   '/task/$id': typeof TaskIdRoute
   '/task/new': typeof TaskNewRoute
@@ -59,21 +67,36 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/calendar': typeof CalendarRoute
+  '/journal': typeof JournalRoute
   '/upcoming': typeof UpcomingRoute
   '/task/$id': typeof TaskIdRoute
   '/task/new': typeof TaskNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/calendar' | '/upcoming' | '/task/$id' | '/task/new'
+  fullPaths:
+    | '/'
+    | '/calendar'
+    | '/journal'
+    | '/upcoming'
+    | '/task/$id'
+    | '/task/new'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/calendar' | '/upcoming' | '/task/$id' | '/task/new'
-  id: '__root__' | '/' | '/calendar' | '/upcoming' | '/task/$id' | '/task/new'
+  to: '/' | '/calendar' | '/journal' | '/upcoming' | '/task/$id' | '/task/new'
+  id:
+    | '__root__'
+    | '/'
+    | '/calendar'
+    | '/journal'
+    | '/upcoming'
+    | '/task/$id'
+    | '/task/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CalendarRoute: typeof CalendarRoute
+  JournalRoute: typeof JournalRoute
   UpcomingRoute: typeof UpcomingRoute
   TaskIdRoute: typeof TaskIdRoute
   TaskNewRoute: typeof TaskNewRoute
@@ -86,6 +109,13 @@ declare module '@tanstack/react-router' {
       path: '/upcoming'
       fullPath: '/upcoming'
       preLoaderRoute: typeof UpcomingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/journal': {
+      id: '/journal'
+      path: '/journal'
+      fullPath: '/journal'
+      preLoaderRoute: typeof JournalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/calendar': {
@@ -122,6 +152,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CalendarRoute: CalendarRoute,
+  JournalRoute: JournalRoute,
   UpcomingRoute: UpcomingRoute,
   TaskIdRoute: TaskIdRoute,
   TaskNewRoute: TaskNewRoute,

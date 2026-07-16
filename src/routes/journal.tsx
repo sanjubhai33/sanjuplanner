@@ -1,5 +1,5 @@
-import { createFileRoute, useServerFn } from "@tanstack/react-start";
-import { createFileRoute as _cfr } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { todayISO } from "@/lib/journal";
@@ -11,8 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-// TanStack Start re-exports createFileRoute from react-router — use that.
-export const Route = _cfr("/journal" as any)({
+export const Route = createFileRoute("/journal")({
   head: () => ({
     meta: [
       { title: "Journal — Daily Planner" },
