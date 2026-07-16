@@ -27,6 +27,8 @@ function JournalPage() {
   const { data: day } = useDay(date);
   const { data: tasks = [] } = useTasks();
   const update = useUpdateDay(date);
+  const { user } = useSession();
+  const userName = useDisplayName(user);
 
   const [recentDays, setRecentDays] = useState<DayEntry[]>([]);
   useEffect(() => {
