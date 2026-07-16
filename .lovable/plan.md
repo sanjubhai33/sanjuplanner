@@ -1,51 +1,58 @@
-# Daily Planner — Installable Native App
+# Automatic APK build via GitHub Actions (koi laptop setup nahi)
 
-A daily planner web app wrapped with **Capacitor** so you can install it as a real Android APK (Play Store ready) and iOS app (App Store ready). All data stays on‑device — fully offline, no login, no backend.
+Aapko sirf ek GitHub account chahiye. Baaki sab **cloud me automatic** hoga — Android Studio, Java, Gradle kuch install nahi karna. APK ready hone pe download link mil jayega, phone me install karke Play Store app jaise use kar sakte ho.
 
-## What you'll get
+## Kaise chalega (aap ka side)
 
-- **Home / Today view** — timeline of today's tasks by hour, quick add button
-- **Task detail** — title, description/notes, date, start time, duration, priority, completion checkbox
-- **Lists view** — all tasks grouped by day (Today, Tomorrow, Upcoming, Completed)
-- **Calendar picker** — jump to any date and see that day's timeline
-- **Edit / delete / mark complete** with swipe or tap actions
-- **Fully offline** — tasks saved in device storage (IndexedDB via localforage); works with no internet, forever
-- **Installable** — Add to Home Screen as PWA immediately, and export to GitHub to build a real `.apk` / `.aab` / `.ipa` with Capacitor
+1. Lovable me top-right **GitHub → Connect** → project ko apne GitHub pe push karo (2 click).
+2. GitHub repo khol ke **Actions** tab pe jao → "Build Android APK" workflow → **Run workflow** button dabao.
+3. 5–8 minute wait karo (cloud build ho raha hoga).
+4. Wahi page pe niche **Artifacts → app-debug.apk** download karo.
+5. Phone me file kholo → Install. Ho gaya. ✅
 
-## How installation works
+Baad me jab bhi aap app me kuch badloge, Lovable → GitHub push → Actions dubara run → naya APK. Bas.
 
- mobile builds cannot be produced inside Lovable's sandbox — Android Studio / Xcode are required. The flow is:
+## Main is turn me ye karunga
 
-1. I build the full app + Capacitor config here in Lovable.
-2. You click **GitHub → Export** to push the project to your GitHub.
-3. You clone it locally and run the documented commands (`npm i`, `npx cap add android`, `npx cap sync`, `npx cap open android`) to build the APK in Android Studio, or `npx cap add ios` for Xcode.
-4. Install the APK on your phone directly, or publish to Play Store / App Store.
+### 1. GitHub Actions workflow (main kaam)
+Naya file `.github/workflows/android-apk.yml` — ye cloud me automatic:
+- Node + Java 17 install karega
+- `bun install` + `bun run build`
+- `bunx cap add android` (agar missing hai)
+- `bunx cap sync android`
+- Gradle se `assembleDebug` chalayega
+- `app-debug.apk` ko artifact ke roop me upload karega (aap download kar sako)
+- Ek "Release APK" job bhi rakhunga (signed, Play Store-ready) — optional, jab aap keystore add karo tab chalega
 
-I'll include a clear `README-mobile.md` with every command so it's copy‑paste.
+Manual trigger (workflow_dispatch) rakhunga taaki aap button se run kar sako, aur `main` branch push pe bhi automatic build ho.
 
-Meanwhile the same app works as an **installable PWA** right from the published Lovable URL — on Android you can "Add to Home Screen" and it launches fullscreen like a real app, no build step needed. Good for testing before you package the native build.
+### 2. Capacitor config polish
+- `capacitor.config.ts` me `appId` ko unique bana dunga: `com.avinash.dailyplanner` (Play Store me duplicate `app.lovable.*` allow nahi karta)
+- App name confirm: "Daily Planner"
+- Android permissions declare karunga (`POST_NOTIFICATIONS`, `SCHEDULE_EXACT_ALARM`, `WAKE_LOCK`, `RECEIVE_BOOT_COMPLETED`) — taaki 30/15/5 min task reminders aur 7am/11pm water alarms native pe sahi fire ho, phone reboot ke baad bhi.
+- `@capacitor/local-notifications` plugin already code me use ho raha hai — package.json me dependency confirm karunga.
 
-## Design direction
+### 3. App icon + splash
+- Aapka current `public/icon-512.png` use karke Android launcher icon aur splash generate hoga (Capacitor assets script). Workflow me `@capacitor/assets` chala dunga taaki har build me icon fresh generate ho.
 
-Before I build, I'll generate 3 visual directions (calm minimal / bold modern / warm paper‑like) and let you pick — planner apps live and die on how the timeline feels.
+### 4. AI online usage (aapne allow kiya)
+Ye already aisa hi hai — Lovable AI Gateway internet use karke daily rating deta hai (11:59 PM). Native APK me bhi wahi work karega jab phone online ho. Offline hone pe tasks/journal local save hote rahenge, AI rating agli baar online hone pe ban jayegi. Ye behavior confirm hai, koi change nahi chahiye.
 
-## Technical details
+### 5. README-mobile.md update
+Sirf 3 simple steps Hindi + English me:
+- GitHub pe push karo
+- Actions me "Run workflow" dabao
+- APK download karke install karo
 
-- **Frontend**: TanStack Start (existing template), React, Tailwind
-- **Storage**: `localforage` (IndexedDB) — survives app restarts, no server
-- **State**: TanStack Query with a local async storage adapter
-- **PWA**: web app manifest + icons so it's installable to home screen immediately
-- **Native shell**: `@capacitor/core`, `@capacitor/cli`, `@capacitor/android`, `@capacitor/ios`, plus `capacitor.config.ts`
-- **No Lovable Cloud** — everything is local‑only per your offline requirement
-- **Docs file** `README-mobile.md` with the exact GitHub → Android Studio → APK steps
+Purane local build steps hata dunga (aapne bola "A nahi aata") — taaki confusion na ho. Ek chhota "advanced: signed release APK" section end me chhota rakh dunga jab aap Play Store pe publish karna chaho.
 
-## Out of scope (say the word to add)
+## Play Store pe daalne ke liye (baad me, jab aap taiyaar ho)
 
-- Cloud sync across devices (would need Lovable Cloud + login using google account)
-- Push notifications / reminders (needs Capacitor plugin + native permissions)
-- Recurring tasks / subtasks / tags
-- Play Store / App Store submission — I build the project, you submit
+Same workflow signed **AAB** bhi bana sakta hai. Aapko sirf ek baar keystore file GitHub Secrets me daalni hogi (main steps README me likh dunga). Play Console pe $25 one-time fee lagti hai Google ki — wo aap khud submit karoge, main file taiyaar kar dunga.
 
-## Next step
+## Confirm karo
 
-Approve and I'll ask you to pick a design direction, then build it end to end.
+Kya main aage badhun aur ye GitHub Actions workflow + config changes bana dun?
+
+- **Haan, build karo** — main sab files bana dunga, aap GitHub pe push karke APK download kar loge.
+- **Ruk jao** — agar koi aur sawaal hai (jaise app ka naam badalna, icon change karna) to pehle bata do.

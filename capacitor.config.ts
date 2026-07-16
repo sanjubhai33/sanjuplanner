@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  appId: "app.lovable.dailyplanner",
+  appId: "com.avinash.dailyplanner",
   appName: "Daily Planner",
   webDir: "dist",
   bundledWebRuntime: false,
