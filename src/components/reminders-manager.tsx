@@ -9,11 +9,14 @@ import {
 import { generateDailyReport } from "@/lib/report.functions";
 import { loadDay, saveDay, todayISO } from "@/lib/journal";
 import { loadTasks } from "@/lib/tasks";
+import { useSession, useDisplayName } from "@/lib/session";
 
 /** Mounts inside the app shell — schedules water/journal/task/report reminders. */
 export function RemindersManager() {
   const { data: tasks } = useTasks();
   const runReport = useServerFn(generateDailyReport);
+  const { user } = useSession();
+  const userName = useDisplayName(user);
 
   // Water + journal + report daily reminders (permission + schedule)
   useEffect(() => {
