@@ -108,6 +108,7 @@ function JournalPage() {
         tone={day.reportTone}
         message={day.reportMessage}
         history={history}
+        userName={userName}
         onReport={(r) =>
           update.mutate({
             reportRating: r.rating,
