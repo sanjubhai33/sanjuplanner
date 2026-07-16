@@ -1,31 +1,22 @@
-## Problem
-GitHub App me **Configure → Save** ho gaya, lekin Lovable me abhi bhi **No connection available** aa raha hai. Iska matlab GitHub authorization save hua, par Lovable editor me connection session/redirect complete nahi hua.
+## Issue
+Aap web par GitHub/Lovable login karne ki koshish kar rahe ho, lekin phone app ya in-app browser me redirect ho ja raha hai. Isi wajah se Lovable me GitHub connection complete nahi hota aur **No connection available** dikhta hai.
 
-## Plan
-1. **Lovable me fresh reconnect try karein**
-   - Lovable project me **Chat mode** kholna.
-   - Chat input ke paas **Plus (+) → GitHub → Connect project** tap karna.
-   - Agar GitHub account dikhe, wahi select karke **Create Repository** karna.
+## Best fix
+1. Phone me **Chrome** open karein.
+2. Chrome menu me jaake **Desktop site ON** karein.
+3. Is URL ko manually Chrome address bar me paste karein:
+   `https://lovable.dev`
+4. Agar Lovable app khulne lage, to phone settings me jaake temporarily default app/open links behavior off karein:
+   - Android Settings → Apps → Lovable → **Open by default** → **Open supported links OFF**
+   - Ya Chrome me link long-press karke **Open in new tab** karein.
+5. Lovable web me login karein.
+6. Project open karein.
+7. Chat input ke paas **Plus (+) → GitHub → Connect project** karein.
+8. GitHub me authorization complete hone ke baad Lovable web tab me wapas aake **Create Repository** karein.
 
-2. **Agar abhi bhi No connection available aaye**
-   - Lovable ko Chrome me open karein, in-app browser nahi.
-   - Chrome menu → **Desktop site ON**.
-   - Lovable se logout/login ek baar karein.
-   - Phir **Plus (+) → GitHub → Connect project** dobara try karein.
-
-3. **GitHub App permissions verify karein**
-   - Browser me open karein: `https://github.com/settings/installations`
-   - **Lovable** app ke saamne **Configure** tap karein.
-   - Repository access me **All repositories** select karein, ya kam se kam Lovable ke liye new repository permission allow karein.
-   - Save karne ke baad Lovable tab me wapas aake GitHub connect retry karein.
-
-4. **Agar mobile par popup/redirect fail ho raha hai**
-   - Ye browser/popup issue hai, project code issue nahi.
-   - Best fix: ek baar desktop/laptop ya kisi friend ke desktop Chrome se Lovable login karke GitHub connect karna.
-   - Connect ho jaane ke baad APK build workflow phone se GitHub Actions me run kiya ja sakta hai.
-
-5. **Last fallback**
-   - Agar GitHub connect bilkul nahi ho raha, to Lovable support ko connection bug report karna hoga, kyunki AI aapke GitHub account ko directly authorize nahi kar sakta.
+## Agar phir bhi app me redirect ho
+- Ek baar Lovable app uninstall/disable karke Chrome web login try karein.
+- Ya kisi desktop/laptop Chrome se login karke GitHub connect karein. Ye sirf ek baar karna hai.
 
 ## Important
-Main direct GitHub connect nahi kar sakta kyunki GitHub ko aapke account ka permission chahiye. Project me APK workflow already ready hai; sirf GitHub connection complete hote hi APK cloud me build ho jayega.
+Main direct GitHub connect nahi kar sakta kyunki GitHub ko aapke account ka permission chahiye. Ye project-code problem nahi hai; ye browser/app redirect issue hai.
