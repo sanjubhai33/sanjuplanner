@@ -43,12 +43,11 @@ jobs:
 
       - name: Generate Android icons & splash
         run: |
-          bun add -D @capacitor/assets || true
           if [ -f "public/icon-512.png" ]; then
             mkdir -p assets
             cp public/icon-512.png assets/icon-only.png || true
             cp public/icon-512.png assets/icon-foreground.png || true
-            bunx @capacitor/assets generate --android --iconBackgroundColor "#0f172a" --iconBackgroundColorDark "#0f172a" --splashBackgroundColor "#0f172a" --splashBackgroundColorDark "#0f172a" || true
+            bunx @capacitor/assets@latest generate --android --iconBackgroundColor "#0f172a" --iconBackgroundColorDark "#0f172a" --splashBackgroundColor "#0f172a" --splashBackgroundColorDark "#0f172a" || true
           fi
 
       - name: Sync Capacitor
@@ -61,10 +60,15 @@ jobs:
         working-directory: android
         run: ./gradlew assembleDebug --no-daemon
 
+      - name: Prepare phone-friendly APK file
+        run: |
+          mkdir -p apk
+          cp android/app/build/outputs/apk/debug/app-debug.apk apk/Daily-Planner-debug.apk
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: Daily-Planner-debug-apk
+          path: apk/Daily-Planner-debug.apk
           if-no-files-found: error
           retention-days: 30
