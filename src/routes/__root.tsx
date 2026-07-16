@@ -191,6 +191,7 @@ function AppLayout() {
         </button>
       </header>
       <RemindersManager />
+      <SyncManager />
       <main className="flex-1 pb-24">
         <Outlet />
       </main>
