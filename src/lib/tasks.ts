@@ -28,10 +28,14 @@ async function currentUserId(): Promise<string | null> {
   return data.session?.user.id ?? null;
 }
 
+function isOnline(): boolean {
+  return typeof navigator === "undefined" ? true : navigator.onLine;
+}
+
 type Row = {
   id: string;
   title: string;
-  notes: string;
+  notes: string | null;
   date: string;
   start_time: string | null;
   duration: number;
@@ -56,6 +60,21 @@ function rowToTask(r: Row): Task {
   };
 }
 
+function taskToRow(t: Task, userId: string) {
+  return {
+    id: t.id,
+    user_id: userId,
+    title: t.title,
+    notes: t.notes,
+    date: t.date,
+    start_time: t.startTime,
+    duration: t.duration,
+    priority: t.priority,
+    completed: t.completed,
+    updated_at: new Date(t.updatedAt).toISOString(),
+  };
+}
+
 async function loadLocal(): Promise<Task[]> {
   return (await store.getItem<Task[]>(STORE_KEY)) ?? [];
 }
@@ -63,108 +82,108 @@ async function saveLocal(tasks: Task[]) {
   await store.setItem(STORE_KEY, tasks);
 }
 
-let migratedForUser: string | null = null;
-async function migrateLocalIfNeeded(userId: string) {
-  if (migratedForUser === userId) return;
-  migratedForUser = userId;
-  const flagKey = `migrated_tasks_${userId}`;
-  const already = await store.getItem<boolean>(flagKey);
-  if (already) return;
-  const local = await loadLocal();
-  if (local.length > 0) {
-    const rows = local.map((t) => ({
-      id: t.id,
-      user_id: userId,
-      title: t.title,
-      notes: t.notes,
-      date: t.date,
-      start_time: t.startTime,
-      duration: t.duration,
-      priority: t.priority,
-      completed: t.completed,
-    }));
-    await supabase.from("tasks").upsert(rows, { onConflict: "id" });
+/** Merge cloud rows + local, newer updatedAt wins. */
+function mergeTasks(local: Task[], cloud: Task[]): Task[] {
+  const map = new Map<string, Task>();
+  for (const t of local) map.set(t.id, t);
+  for (const c of cloud) {
+    const existing = map.get(c.id);
+    if (!existing || c.updatedAt >= existing.updatedAt) map.set(c.id, c);
   }
-  await store.setItem(flagKey, true);
+  return [...map.values()];
+}
+
+let syncing = false;
+/** Pull from cloud + push local; safe to call anytime. Silent on failure. */
+export async function syncTasks(): Promise<Task[] | null> {
+  if (syncing) return null;
+  const uid = await currentUserId();
+  if (!uid || !isOnline()) return null;
+  syncing = true;
+  try {
+    const local = await loadLocal();
+    const { data, error } = await supabase
+      .from("tasks")
+      .select("*")
+      .eq("user_id", uid);
+    if (error || !data) return null;
+    const cloud = (data as Row[]).map(rowToTask);
+    const merged = mergeTasks(local, cloud);
+    await saveLocal(merged);
+
+    // Push anything local has that's newer or missing in cloud
+    const cloudMap = new Map(cloud.map((c) => [c.id, c]));
+    const toPush = merged.filter((t) => {
+      const c = cloudMap.get(t.id);
+      return !c || t.updatedAt > c.updatedAt;
+    });
+    if (toPush.length > 0) {
+      await supabase
+        .from("tasks")
+        .upsert(toPush.map((t) => taskToRow(t, uid)), { onConflict: "id" });
+    }
+    return merged;
+  } catch {
+    return null;
+  } finally {
+    syncing = false;
+  }
+}
+
+async function pushOne(task: Task) {
+  const uid = await currentUserId();
+  if (!uid || !isOnline()) return;
+  try {
+    await supabase
+      .from("tasks")
+      .upsert(taskToRow(task, uid), { onConflict: "id" });
+  } catch {
+    /* ignore, will sync later */
+  }
+}
+
+async function deleteOne(id: string) {
+  const uid = await currentUserId();
+  if (!uid || !isOnline()) return;
+  try {
+    await supabase.from("tasks").delete().eq("id", id).eq("user_id", uid);
+  } catch {
+    /* ignore */
+  }
 }
 
 export async function loadTasks(): Promise<Task[]> {
-  const uid = await currentUserId();
-  if (!uid) return loadLocal();
-  await migrateLocalIfNeeded(uid);
-  const { data, error } = await supabase
-    .from("tasks")
-    .select("*")
-    .eq("user_id", uid)
-    .order("date", { ascending: true });
-  if (error || !data) return [];
-  return (data as Row[]).map(rowToTask);
+  return loadLocal();
 }
 
 export async function upsertTask(task: Task): Promise<Task[]> {
-  const uid = await currentUserId();
-  if (!uid) {
-    const tasks = await loadLocal();
-    const idx = tasks.findIndex((t) => t.id === task.id);
-    const next = [...tasks];
-    const withTs = { ...task, updatedAt: Date.now() };
-    if (idx >= 0) next[idx] = withTs;
-    else next.push(withTs);
-    await saveLocal(next);
-    return next;
-  }
-  await supabase.from("tasks").upsert(
-    {
-      id: task.id,
-      user_id: uid,
-      title: task.title,
-      notes: task.notes,
-      date: task.date,
-      start_time: task.startTime,
-      duration: task.duration,
-      priority: task.priority,
-      completed: task.completed,
-      updated_at: new Date().toISOString(),
-    },
-    { onConflict: "id" },
-  );
-  return loadTasks();
+  const tasks = await loadLocal();
+  const idx = tasks.findIndex((t) => t.id === task.id);
+  const next = [...tasks];
+  const withTs = { ...task, updatedAt: Date.now() };
+  if (idx >= 0) next[idx] = withTs;
+  else next.push(withTs);
+  await saveLocal(next);
+  void pushOne(withTs);
+  return next;
 }
 
 export async function deleteTask(id: string): Promise<Task[]> {
-  const uid = await currentUserId();
-  if (!uid) {
-    const next = (await loadLocal()).filter((t) => t.id !== id);
-    await saveLocal(next);
-    return next;
-  }
-  await supabase.from("tasks").delete().eq("id", id).eq("user_id", uid);
-  return loadTasks();
+  const next = (await loadLocal()).filter((t) => t.id !== id);
+  await saveLocal(next);
+  void deleteOne(id);
+  return next;
 }
 
 export async function toggleTask(id: string): Promise<Task[]> {
-  const uid = await currentUserId();
-  if (!uid) {
-    const next = (await loadLocal()).map((t) =>
-      t.id === id ? { ...t, completed: !t.completed, updatedAt: Date.now() } : t,
-    );
-    await saveLocal(next);
-    return next;
-  }
-  const { data } = await supabase
-    .from("tasks")
-    .select("completed")
-    .eq("id", id)
-    .eq("user_id", uid)
-    .maybeSingle();
-  if (data) {
-    await supabase
-      .from("tasks")
-      .update({ completed: !data.completed, updated_at: new Date().toISOString() })
-      .eq("id", id)
-      .eq("user_id", uid);
-  }
-  return loadTasks();
+  const now = Date.now();
+  const next = (await loadLocal()).map((t) =>
+    t.id === id ? { ...t, completed: !t.completed, updatedAt: now } : t,
+  );
+  await saveLocal(next);
+  const changed = next.find((t) => t.id === id);
+  if (changed) void pushOne(changed);
+  return next;
 }
 
 export function newTask(partial: Partial<Task> = {}): Task {

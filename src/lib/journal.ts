@@ -40,6 +40,10 @@ async function currentUserId(): Promise<string | null> {
   return data.session?.user.id ?? null;
 }
 
+function isOnline(): boolean {
+  return typeof navigator === "undefined" ? true : navigator.onLine;
+}
+
 type Row = {
   date: string;
   water_count: number;
@@ -68,63 +72,51 @@ function rowToDay(r: Row): DayEntry {
   };
 }
 
-let migratedForUser: string | null = null;
-async function migrateLocalIfNeeded(userId: string) {
-  if (migratedForUser === userId) return;
-  migratedForUser = userId;
-  const flagKey = `migrated_journal_${userId}`;
-  const already = await store.getItem<boolean>(flagKey);
-  if (already) return;
-  type JournalInsert = {
-    user_id: string;
-    date: string;
-    water_count: number;
-    water_goal: number;
-    satisfied: string[];
-    unsatisfied: string[];
-    report_rating: number | null;
-    report_message: string | null;
-    report_tone: string | null;
-    report_generated_at: number | null;
+function dayToRow(d: DayEntry, userId: string) {
+  return {
+    user_id: userId,
+    date: d.date,
+    water_count: d.waterCount,
+    water_goal: d.waterGoal,
+    satisfied: d.satisfied,
+    unsatisfied: d.unsatisfied,
+    report_rating: d.reportRating ?? null,
+    report_message: d.reportMessage ?? null,
+    report_tone: d.reportTone ?? null,
+    report_generated_at: d.reportGeneratedAt ?? null,
+    updated_at: new Date(d.updatedAt).toISOString(),
   };
-  const rows: JournalInsert[] = [];
-  await store.iterate<DayEntry, void>((val, key) => {
-    if (key.startsWith("migrated_")) return;
-    if (!val || typeof val !== "object" || !("date" in val)) return;
-    rows.push({
-      user_id: userId,
-      date: val.date,
-      water_count: val.waterCount ?? 0,
-      water_goal: val.waterGoal ?? 8,
-      satisfied: val.satisfied ?? [],
-      unsatisfied: val.unsatisfied ?? [],
-      report_rating: val.reportRating ?? null,
-      report_message: val.reportMessage ?? null,
-      report_tone: val.reportTone ?? null,
-      report_generated_at: val.reportGeneratedAt ?? null,
-    });
-  });
-  if (rows.length > 0) {
-    await supabase.from("journal_days").upsert(rows, { onConflict: "user_id,date" });
-  }
-  await store.setItem(flagKey, true);
 }
 
 export async function loadDay(date: string): Promise<DayEntry> {
-  const uid = await currentUserId();
-  if (!uid) {
-    const raw = await store.getItem<DayEntry>(date);
-    return raw ?? emptyDay(date);
+  const raw = await store.getItem<DayEntry>(date);
+  return raw ?? emptyDay(date);
+}
+
+/** Load last N days including today, from local. Used for trend context. */
+export async function loadRecentDays(n: number): Promise<DayEntry[]> {
+  const out: DayEntry[] = [];
+  const today = new Date();
+  for (let i = 0; i < n; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    const raw = await store.getItem<DayEntry>(iso);
+    if (raw) out.push(raw);
   }
-  await migrateLocalIfNeeded(uid);
-  const { data } = await supabase
-    .from("journal_days")
-    .select("*")
-    .eq("user_id", uid)
-    .eq("date", date)
-    .maybeSingle();
-  if (!data) return emptyDay(date);
-  return rowToDay(data as Row);
+  return out;
+}
+
+async function pushDay(day: DayEntry) {
+  const uid = await currentUserId();
+  if (!uid || !isOnline()) return;
+  try {
+    await supabase
+      .from("journal_days")
+      .upsert(dayToRow(day, uid), { onConflict: "user_id,date" });
+  } catch {
+    /* ignore */
+  }
 }
 
 export async function saveDay(day: DayEntry): Promise<DayEntry> {
@@ -135,30 +127,65 @@ export async function updateDay(
   date: string,
   patch: Partial<DayEntry>,
 ): Promise<DayEntry> {
-  const uid = await currentUserId();
-  if (!uid) {
-    const current = await loadDay(date);
-    const next: DayEntry = { ...current, ...patch, date, updatedAt: Date.now() };
-    await store.setItem(date, next);
-    return next;
-  }
   const current = await loadDay(date);
-  const merged: DayEntry = { ...current, ...patch, date, updatedAt: Date.now() };
-  await supabase.from("journal_days").upsert(
-    {
-      user_id: uid,
-      date,
-      water_count: merged.waterCount,
-      water_goal: merged.waterGoal,
-      satisfied: merged.satisfied,
-      unsatisfied: merged.unsatisfied,
-      report_rating: merged.reportRating ?? null,
-      report_message: merged.reportMessage ?? null,
-      report_tone: merged.reportTone ?? null,
-      report_generated_at: merged.reportGeneratedAt ?? null,
-      updated_at: new Date().toISOString(),
-    },
-    { onConflict: "user_id,date" },
-  );
-  return merged;
+  const next: DayEntry = { ...current, ...patch, date, updatedAt: Date.now() };
+  await store.setItem(date, next);
+  void pushDay(next);
+  return next;
+}
+
+let syncing = false;
+/** Pull cloud journal, merge into local (newer wins), push local newer. */
+export async function syncJournal(): Promise<void> {
+  if (syncing) return;
+  const uid = await currentUserId();
+  if (!uid || !isOnline()) return;
+  syncing = true;
+  try {
+    const { data, error } = await supabase
+      .from("journal_days")
+      .select("*")
+      .eq("user_id", uid);
+    if (error || !data) return;
+    const cloudMap = new Map<string, DayEntry>();
+    for (const r of data as Row[]) {
+      const d = rowToDay(r);
+      cloudMap.set(d.date, d);
+    }
+
+    // Collect local days
+    const localMap = new Map<string, DayEntry>();
+    await store.iterate<DayEntry, void>((val, key) => {
+      if (!val || typeof val !== "object" || !("date" in val)) return;
+      if (typeof key !== "string" || key.startsWith("migrated_")) return;
+      localMap.set(val.date, val);
+    });
+
+    // Merge cloud into local
+    for (const [date, cloud] of cloudMap) {
+      const local = localMap.get(date);
+      if (!local || cloud.updatedAt >= local.updatedAt) {
+        await store.setItem(date, cloud);
+        localMap.set(date, cloud);
+      }
+    }
+
+    // Push local newer/missing
+    const toPush: DayEntry[] = [];
+    for (const [date, local] of localMap) {
+      const cloud = cloudMap.get(date);
+      if (!cloud || local.updatedAt > cloud.updatedAt) toPush.push(local);
+    }
+    if (toPush.length > 0) {
+      await supabase
+        .from("journal_days")
+        .upsert(toPush.map((d) => dayToRow(d, uid)), {
+          onConflict: "user_id,date",
+        });
+    }
+  } catch {
+    /* ignore */
+  } finally {
+    syncing = false;
+  }
 }

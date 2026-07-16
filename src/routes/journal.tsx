@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { todayISO } from "@/lib/journal";
+import { todayISO, loadRecentDays, type DayEntry } from "@/lib/journal";
 import { useDay, useUpdateDay } from "@/lib/use-journal";
 import { useTasks } from "@/lib/use-tasks";
 import { ensureReminders } from "@/lib/reminders";
@@ -27,14 +27,34 @@ function JournalPage() {
   const { data: tasks = [] } = useTasks();
   const update = useUpdateDay(date);
 
+  const [recentDays, setRecentDays] = useState<DayEntry[]>([]);
   useEffect(() => {
     ensureReminders();
-  }, []);
-
-  if (!day) return null;
+    loadRecentDays(8).then(setRecentDays);
+  }, [day?.updatedAt]);
 
   const todaysTasks = tasks.filter((t) => t.date === date);
   const completed = todaysTasks.filter((t) => t.completed).length;
+
+  const history = useMemo(() => {
+    return recentDays
+      .filter((d) => d.date !== date)
+      .map((d) => {
+        const dayTasks = tasks.filter((t) => t.date === d.date);
+        return {
+          date: d.date,
+          totalTasks: dayTasks.length,
+          completedTasks: dayTasks.filter((t) => t.completed).length,
+          waterCount: d.waterCount,
+          waterGoal: d.waterGoal,
+          satisfiedCount: d.satisfied.length,
+          unsatisfiedCount: d.unsatisfied.length,
+          rating: d.reportRating,
+        };
+      });
+  }, [recentDays, tasks, date]);
+
+  if (!day) return null;
 
   return (
     <div className="mx-auto max-w-md px-5 pt-10 space-y-6">
@@ -84,6 +104,7 @@ function JournalPage() {
         rating={day.reportRating}
         tone={day.reportTone}
         message={day.reportMessage}
+        history={history}
         onReport={(r) =>
           update.mutate({
             reportRating: r.rating,
@@ -240,6 +261,17 @@ function NoteList({
   );
 }
 
+type HistoryItem = {
+  date: string;
+  totalTasks: number;
+  completedTasks: number;
+  waterCount: number;
+  waterGoal: number;
+  satisfiedCount: number;
+  unsatisfiedCount: number;
+  rating?: number;
+};
+
 function ReportCard(props: {
   date: string;
   totalTasks: number;
@@ -251,6 +283,7 @@ function ReportCard(props: {
   rating?: number;
   tone?: "proud" | "shame" | "mixed";
   message?: string;
+  history: HistoryItem[];
   onReport: (r: { rating: number; tone: "proud" | "shame" | "mixed"; message: string }) => void;
 }) {
   const runReport = useServerFn(generateDailyReport);
@@ -265,6 +298,7 @@ function ReportCard(props: {
           waterGoal: props.waterGoal,
           satisfied: props.satisfied,
           unsatisfied: props.unsatisfied,
+          history: props.history,
         },
       }),
     onSuccess: (data) => props.onReport(data),
