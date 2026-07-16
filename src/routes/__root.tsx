@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { RemindersManager } from "../components/reminders-manager";
+import { SyncManager } from "../components/sync-manager";
 import { AuthPage } from "../components/auth-page";
 import { useSession, useDisplayName } from "../lib/session";
 import { supabase } from "@/integrations/supabase/client";
