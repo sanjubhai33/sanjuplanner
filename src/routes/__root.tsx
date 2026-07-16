@@ -161,7 +161,7 @@ function BottomNav() {
       className="fixed bottom-0 inset-x-0 z-40 border-t border-border bg-card/95 backdrop-blur"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <ul className="mx-auto max-w-md grid grid-cols-3">
+      <ul className="mx-auto max-w-md grid grid-cols-4">
         {items.map((it) => (
           <li key={it.to}>
             <Link
