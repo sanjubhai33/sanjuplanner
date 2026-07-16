@@ -76,22 +76,35 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      {
+        name: "viewport",
+        content:
+          "width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no",
+      },
+      { name: "theme-color", content: "#d97757" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "default" },
+      { name: "apple-mobile-web-app-title", content: "Planner" },
+      { title: "Daily Planner — Offline Tasks & Timeline" },
+      {
+        name: "description",
+        content:
+          "A calm offline daily planner. Plan your day on a timeline, add tasks with notes, priority and duration. Installable on Android, iOS and desktop.",
+      },
+      { property: "og:title", content: "Daily Planner — Offline Tasks & Timeline" },
+      {
+        property: "og:description",
+        content:
+          "Plan your day on a timeline. Fully offline. Installable as a real app.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "stylesheet", href: appCss },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "icon", href: "/icon-512.png", type: "image/png" },
+      { rel: "apple-touch-icon", href: "/icon-512.png" },
     ],
   }),
   shellComponent: RootShell,
@@ -99,6 +112,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent,
 });
+
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
@@ -119,8 +133,72 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <AppLayout />
     </QueryClientProvider>
   );
 }
+
+function AppLayout() {
+  return (
+    <div className="min-h-[100dvh] bg-background text-foreground flex flex-col">
+      <main className="flex-1 pb-24">
+        <Outlet />
+      </main>
+      <BottomNav />
+    </div>
+  );
+}
+
+function BottomNav() {
+  const items = [
+    { to: "/", label: "Today", icon: "sun" as const },
+    { to: "/upcoming", label: "Upcoming", icon: "list" as const },
+    { to: "/calendar", label: "Calendar", icon: "cal" as const },
+  ];
+  return (
+    <nav
+      className="fixed bottom-0 inset-x-0 z-40 border-t border-border bg-card/95 backdrop-blur"
+      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+    >
+      <ul className="mx-auto max-w-md grid grid-cols-3">
+        {items.map((it) => (
+          <li key={it.to}>
+            <Link
+              to={it.to}
+              className="flex flex-col items-center gap-1 py-3 text-xs font-medium text-muted-foreground [&.active]:text-primary"
+              activeOptions={{ exact: true }}
+            >
+              <NavIcon name={it.icon} />
+              {it.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
+
+function NavIcon({ name }: { name: "sun" | "list" | "cal" }) {
+  const cls = "h-5 w-5";
+  if (name === "sun")
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={cls} strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="4" />
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+      </svg>
+    );
+  if (name === "list")
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={cls} strokeLinecap="round" strokeLinejoin="round">
+        <path d="M8 6h13M8 12h13M8 18h13" />
+        <circle cx="4" cy="6" r="1" /><circle cx="4" cy="12" r="1" /><circle cx="4" cy="18" r="1" />
+      </svg>
+    );
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={cls} strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2" />
+      <path d="M16 2v4M8 2v4M3 10h18" />
+    </svg>
+  );
+}
+
