@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { RemindersManager } from "../components/reminders-manager";
+import { InstallAppButton } from "../components/install-app-button";
 import { SyncManager } from "../components/sync-manager";
 import { AuthPage } from "../components/auth-page";
 import { useSession, useDisplayName } from "../lib/session";
@@ -183,12 +184,15 @@ function AppLayout() {
           <p className="text-xs text-muted-foreground">Hello</p>
           <h2 className="text-lg font-semibold text-foreground">{name || "there"}</h2>
         </div>
-        <button
-          onClick={signOut}
-          className="text-xs font-medium text-muted-foreground hover:text-foreground"
-        >
-          Sign out
-        </button>
+        <div className="flex items-center gap-3">
+          <InstallAppButton />
+          <button
+            onClick={signOut}
+            className="text-xs font-medium text-muted-foreground hover:text-foreground"
+          >
+            Sign out
+          </button>
+        </div>
       </header>
       <RemindersManager />
       <SyncManager />
