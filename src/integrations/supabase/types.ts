@@ -14,7 +14,111 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      journal_days: {
+        Row: {
+          date: string
+          report_generated_at: number | null
+          report_message: string | null
+          report_rating: number | null
+          report_tone: string | null
+          satisfied: Json
+          unsatisfied: Json
+          updated_at: string
+          user_id: string
+          water_count: number
+          water_goal: number
+        }
+        Insert: {
+          date: string
+          report_generated_at?: number | null
+          report_message?: string | null
+          report_rating?: number | null
+          report_tone?: string | null
+          satisfied?: Json
+          unsatisfied?: Json
+          updated_at?: string
+          user_id: string
+          water_count?: number
+          water_goal?: number
+        }
+        Update: {
+          date?: string
+          report_generated_at?: number | null
+          report_message?: string | null
+          report_rating?: number | null
+          report_tone?: string | null
+          satisfied?: Json
+          unsatisfied?: Json
+          updated_at?: string
+          user_id?: string
+          water_count?: number
+          water_goal?: number
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tasks: {
+        Row: {
+          completed: boolean
+          created_at: string
+          date: string
+          duration: number
+          id: string
+          notes: string
+          priority: string
+          start_time: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          date: string
+          duration?: number
+          id?: string
+          notes?: string
+          priority?: string
+          start_time?: string | null
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          date?: string
+          duration?: number
+          id?: string
+          notes?: string
+          priority?: string
+          start_time?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
