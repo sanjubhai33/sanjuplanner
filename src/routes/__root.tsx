@@ -184,12 +184,15 @@ function AppLayout() {
           <p className="text-xs text-muted-foreground">Hello</p>
           <h2 className="text-lg font-semibold text-foreground">{name || "there"}</h2>
         </div>
-        <button
-          onClick={signOut}
-          className="text-xs font-medium text-muted-foreground hover:text-foreground"
-        >
-          Sign out
-        </button>
+        <div className="flex items-center gap-3">
+          <InstallAppButton />
+          <button
+            onClick={signOut}
+            className="text-xs font-medium text-muted-foreground hover:text-foreground"
+          >
+            Sign out
+          </button>
+        </div>
       </header>
       <RemindersManager />
       <SyncManager />
