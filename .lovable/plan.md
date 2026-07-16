@@ -1,23 +1,36 @@
-## Chrome se GitHub connect — final approach
+## Direct option for GitHub Add connection issue
 
-Aapke Chrome me "Add connection" click par kuch nahi hota kyunki popup silently block ho raha hai. Chrome mobile me ye 3 cheezein karo — inme se ek zaroor kaam karega.
+### Sach baat
+Main aapke GitHub account ko directly connect nahi kar sakta. GitHub authorization aapke browser me aapko hi approve karna padta hai — isko AI ya Lovable backend se bypass nahi kiya ja sakta.
 
-### Step 1 — Chrome ko Desktop site mode me daalo (sabse important)
-1. `lovable.dev` khol ke login karo
-2. Chrome ke upar right ⋮ menu → **Desktop site** ✅ tick karo
-3. Page reload hoga → Settings → Git → **Add connection**
-4. Desktop mode me popup block nahi hota, GitHub authorize page seedha khulega
+### Ab practical direct options
 
-### Step 2 — Agar Desktop mode me bhi blank
-Chrome address bar me left side 🔒/ⓘ icon → **Permissions** → **Pop-ups and redirects** → **Allow**. Phir Add connection dobara.
+#### Option 1 — Lovable support ko issue bhejna
+Ye exact message copy karke Lovable support/chat me bhejo:
 
-### Step 3 — Long-press fallback
-"Add connection" button ko 2 second **press-and-hold** karo → menu aayega → **Open in new tab**. Naya tab me GitHub authorize page load hoga.
+```text
+GitHub Add connection is not opening on Android Chrome. I tried allowing pop-ups, disabling open links in apps, desktop site mode, clearing site data, and long-press. Nothing opens / blank. I only have phone access. Please help reset or manually fix GitHub connection flow for my account/workspace.
+```
 
-### Why direct connect nahi ho sakta
-Mai (AI) aapke GitHub account me authorize nahi kar sakta — ye security ke liye sirf aap hi browser me approve kar sakte ho. Iska koi bypass nahi hai.
+#### Option 2 — Kisi aur browser/device se sirf 1 baar connect
+Agar kisi friend/cyber cafe/borrowed phone/laptop me login kar sakte ho:
+1. `lovable.dev` open karo
+2. Login karo
+3. Project → GitHub → Connect project
+4. GitHub authorize karo
+5. Create Repository dabao
 
-### Agar ye teeno fail
-Mujhe batao kaunsa step try kiya aur kya hua (screenshot ya exact text). Tab hum Firefox route ya support ticket path pe jayenge.
+Ek baar connect ho gaya to baad me sync automatic rahega.
 
-**Recommendation:** pehle **Step 1 (Desktop site mode)** try karo — 90% chance yahi fix karega.
+#### Option 3 — GitHub ke bina APK path
+Agar GitHub connect bilkul nahi ho raha, hum GitHub Actions route nahi use kar payenge. Phir APK banane ke liye alternative chahiye:
+- Codebase download karke external builder me upload, ya
+- Kisi laptop/desktop se GitHub connect, ya
+- Support se connection flow fix.
+
+### Recommended next move
+Ab support message bhejna best hai, kyunki Chrome ke sab fixes fail ho chuke hain aur direct authorization bypass available nahi hai.
+
+<presentation-actions>
+<presentation-link url="https://docs.lovable.dev/tips-tricks/troubleshooting">Troubleshooting docs</presentation-link>
+</presentation-actions>
