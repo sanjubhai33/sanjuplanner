@@ -1,22 +1,20 @@
-## Issue
-Aap web par GitHub/Lovable login karne ki koshish kar rahe ho, lekin phone app ya in-app browser me redirect ho ja raha hai. Isi wajah se Lovable me GitHub connection complete nahi hota aur **No connection available** dikhta hai.
+## Problem
+Aap Google login kar rahe ho aur page par error aa raha hai: “Unable to process request due to missing initial state.” Iska matlab browser ne Google login ke beech me temporary session data lose/block kar diya. Ye usually Chrome cookies/sessionStorage, Incognito, translator, app redirect, ya blocked third-party storage ki wajah se hota hai.
 
-## Best fix
-1. Phone me **Chrome** open karein.
-2. Chrome menu me jaake **Desktop site ON** karein.
-3. Is URL ko manually Chrome address bar me paste karein:
-   `https://lovable.dev`
-4. Agar Lovable app khulne lage, to phone settings me jaake temporarily default app/open links behavior off karein:
-   - Android Settings → Apps → Lovable → **Open by default** → **Open supported links OFF**
-   - Ya Chrome me link long-press karke **Open in new tab** karein.
-5. Lovable web me login karein.
-6. Project open karein.
-7. Chat input ke paas **Plus (+) → GitHub → Connect project** karein.
-8. GitHub me authorization complete hone ke baad Lovable web tab me wapas aake **Create Repository** karein.
+## Steps to try
+1. Chrome ka **Incognito tab use na karein**. Normal tab me login karein.
+2. Chrome me `auth.lovable.dev` page open hai to us tab ko close karein.
+3. Chrome Settings → Site settings → **Third-party cookies** → temporarily **Allow third-party cookies** karein.
+4. Chrome Settings → Privacy → **Clear browsing data** → Cookies + cache clear karein.
+5. Chrome address bar me manually type karein: `https://lovable.dev`.
+6. Chrome menu se **Desktop site ON** karein.
+7. Google login start karein aur beech me back button, translate button, ya tab switch avoid karein.
+8. Agar Lovable app khul jaye: Android Settings → Apps → Lovable → Open by default → **Open supported links OFF** karein.
 
-## Agar phir bhi app me redirect ho
-- Ek baar Lovable app uninstall/disable karke Chrome web login try karein.
-- Ya kisi desktop/laptop Chrome se login karke GitHub connect karein. Ye sirf ek baar karna hai.
+## Agar phir bhi same error aaye
+- Chrome ke bajay **Firefox** ya **Samsung Internet** me `https://lovable.dev` open karke Google login try karein.
+- Ya Lovable app temporarily uninstall/disable karke Chrome login retry karein.
+- Sabse reliable: ek baar laptop/desktop browser se login karke GitHub connect kar dein.
 
 ## Important
-Main direct GitHub connect nahi kar sakta kyunki GitHub ko aapke account ka permission chahiye. Ye project-code problem nahi hai; ye browser/app redirect issue hai.
+Isme project ke code me change karne se login fix nahi hoga, kyunki error Lovable authentication page par aa raha hai, aapke app ke andar nahi.
