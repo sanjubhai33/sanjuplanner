@@ -10,6 +10,7 @@ import { generateDailyReport } from "@/lib/report.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { useSession, useDisplayName } from "@/lib/session";
 
 export const Route = createFileRoute("/journal")({
   head: () => ({
