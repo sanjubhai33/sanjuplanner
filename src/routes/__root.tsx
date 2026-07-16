@@ -12,6 +12,10 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { RemindersManager } from "../components/reminders-manager";
+import { AuthPage } from "../components/auth-page";
+import { useSession, useDisplayName } from "../lib/session";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 function NotFoundComponent() {
   return (
@@ -140,8 +144,51 @@ function RootComponent() {
 }
 
 function AppLayout() {
+  const { session, user, loading } = useSession();
+  const name = useDisplayName(user);
+  const qc = useQueryClient();
+
+  useEffect(() => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
+        qc.invalidateQueries();
+      }
+    });
+    return () => sub.subscription.unsubscribe();
+  }, [qc]);
+
+  if (loading) {
+    return (
+      <div className="min-h-[100dvh] flex items-center justify-center bg-background text-muted-foreground text-sm">
+        Loading…
+      </div>
+    );
+  }
+
+  if (!session) {
+    return <AuthPage />;
+  }
+
+  const signOut = async () => {
+    await qc.cancelQueries();
+    qc.clear();
+    await supabase.auth.signOut();
+  };
+
   return (
     <div className="min-h-[100dvh] bg-background text-foreground flex flex-col">
+      <header className="flex items-center justify-between px-5 pt-5 pb-2">
+        <div>
+          <p className="text-xs text-muted-foreground">Hello</p>
+          <h2 className="text-lg font-semibold text-foreground">{name || "there"}</h2>
+        </div>
+        <button
+          onClick={signOut}
+          className="text-xs font-medium text-muted-foreground hover:text-foreground"
+        >
+          Sign out
+        </button>
+      </header>
       <RemindersManager />
       <main className="flex-1 pb-24">
         <Outlet />
