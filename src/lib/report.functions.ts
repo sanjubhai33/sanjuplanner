@@ -22,6 +22,7 @@ const InputSchema = z.object({
   satisfied: z.array(z.string()),
   unsatisfied: z.array(z.string()),
   history: z.array(HistoryDay).optional(),
+  userName: z.string().optional(),
 });
 
 const OutputSchema = z.object({
