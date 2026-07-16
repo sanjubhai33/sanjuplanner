@@ -33,8 +33,6 @@ function JournalPage() {
     loadRecentDays(8).then(setRecentDays);
   }, [day?.updatedAt]);
 
-  if (!day) return null;
-
   const todaysTasks = tasks.filter((t) => t.date === date);
   const completed = todaysTasks.filter((t) => t.completed).length;
 
@@ -55,6 +53,8 @@ function JournalPage() {
         };
       });
   }, [recentDays, tasks, date]);
+
+  if (!day) return null;
 
   return (
     <div className="mx-auto max-w-md px-5 pt-10 space-y-6">
