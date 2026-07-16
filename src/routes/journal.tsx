@@ -10,6 +10,7 @@ import { generateDailyReport } from "@/lib/report.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { useSession, useDisplayName } from "@/lib/session";
 
 export const Route = createFileRoute("/journal")({
   head: () => ({
@@ -26,6 +27,8 @@ function JournalPage() {
   const { data: day } = useDay(date);
   const { data: tasks = [] } = useTasks();
   const update = useUpdateDay(date);
+  const { user } = useSession();
+  const userName = useDisplayName(user);
 
   const [recentDays, setRecentDays] = useState<DayEntry[]>([]);
   useEffect(() => {
@@ -105,6 +108,7 @@ function JournalPage() {
         tone={day.reportTone}
         message={day.reportMessage}
         history={history}
+        userName={userName}
         onReport={(r) =>
           update.mutate({
             reportRating: r.rating,
@@ -284,6 +288,7 @@ function ReportCard(props: {
   tone?: "proud" | "shame" | "mixed";
   message?: string;
   history: HistoryItem[];
+  userName?: string;
   onReport: (r: { rating: number; tone: "proud" | "shame" | "mixed"; message: string }) => void;
 }) {
   const runReport = useServerFn(generateDailyReport);
@@ -299,6 +304,7 @@ function ReportCard(props: {
           satisfied: props.satisfied,
           unsatisfied: props.unsatisfied,
           history: props.history,
+          userName: props.userName,
         },
       }),
     onSuccess: (data) => props.onReport(data),
