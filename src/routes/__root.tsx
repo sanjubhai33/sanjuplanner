@@ -92,20 +92,24 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "default" },
       { name: "apple-mobile-web-app-title", content: "Planner" },
-      { title: "Daily Planner — Offline Tasks & Timeline" },
+      { title: "Today — Daily Planner" },
       {
         name: "description",
         content:
-          "A calm offline daily planner. Plan your day on a timeline, add tasks with notes, priority and duration. Installable on Android, iOS and desktop.",
+          "Your timeline for today. Offline daily planner.",
       },
-      { property: "og:title", content: "Daily Planner — Offline Tasks & Timeline" },
+      { property: "og:title", content: "Today — Daily Planner" },
       {
         property: "og:description",
         content:
-          "Plan your day on a timeline. Fully offline. Installable as a real app.",
+          "Your timeline for today. Offline daily planner.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Today — Daily Planner" },
+      { name: "twitter:description", content: "Your timeline for today. Offline daily planner." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a5b3f5a9-3efc-47ba-aee3-4d540f84e2e9/id-preview-937c43a0--a53de2ec-bc9e-4803-9091-ec1359346100.lovable.app-1784224475087.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a5b3f5a9-3efc-47ba-aee3-4d540f84e2e9/id-preview-937c43a0--a53de2ec-bc9e-4803-9091-ec1359346100.lovable.app-1784224475087.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
