@@ -46,6 +46,7 @@ export function RemindersManager() {
             waterGoal: day.waterGoal,
             satisfied: day.satisfied,
             unsatisfied: day.unsatisfied,
+            userName,
           },
         });
         await saveDay({
