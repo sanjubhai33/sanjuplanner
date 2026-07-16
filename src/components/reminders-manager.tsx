@@ -66,7 +66,7 @@ export function RemindersManager() {
         } catch {}
       } catch {}
     });
-  }, [runReport]);
+  }, [runReport, userName]);
 
   return null;
 }
