@@ -261,6 +261,17 @@ function NoteList({
   );
 }
 
+type HistoryItem = {
+  date: string;
+  totalTasks: number;
+  completedTasks: number;
+  waterCount: number;
+  waterGoal: number;
+  satisfiedCount: number;
+  unsatisfiedCount: number;
+  rating?: number;
+};
+
 function ReportCard(props: {
   date: string;
   totalTasks: number;
@@ -272,6 +283,7 @@ function ReportCard(props: {
   rating?: number;
   tone?: "proud" | "shame" | "mixed";
   message?: string;
+  history: HistoryItem[];
   onReport: (r: { rating: number; tone: "proud" | "shame" | "mixed"; message: string }) => void;
 }) {
   const runReport = useServerFn(generateDailyReport);
@@ -286,6 +298,7 @@ function ReportCard(props: {
           waterGoal: props.waterGoal,
           satisfied: props.satisfied,
           unsatisfied: props.unsatisfied,
+          history: props.history,
         },
       }),
     onSuccess: (data) => props.onReport(data),
