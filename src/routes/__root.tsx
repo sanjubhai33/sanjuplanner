@@ -154,6 +154,7 @@ function BottomNav() {
     { to: "/", label: "Today", icon: "sun" as const },
     { to: "/upcoming", label: "Upcoming", icon: "list" as const },
     { to: "/calendar", label: "Calendar", icon: "cal" as const },
+    { to: "/journal", label: "Journal", icon: "book" as const },
   ];
   return (
     <nav
