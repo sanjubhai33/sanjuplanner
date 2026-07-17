@@ -49,17 +49,35 @@ jobs:
       - name: Build web app
         run: npm run build
 
-      - name: Verify bundled offline web app
+      - name: Prerender offline index.html via built worker
         run: |
-          if [ ! -f dist/client/index.html ]; then
-            echo "dist/client/index.html is missing. The APK must include the real built app for offline use." >&2
-            echo "Build output:" >&2
+          set -e
+          rm -rf .wrangler
+          if [ ! -f dist/server/wrangler.json ]; then
+            echo "dist/server/wrangler.json missing — nitro build did not produce a worker." >&2
             find dist -maxdepth 3 -type f | sort | sed -n '1,120p' >&2 || true
             exit 1
           fi
+          (cd dist/server && npx --yes wrangler@4 dev --local --port 8799 --ip 127.0.0.1 > /tmp/wrangler.log 2>&1 &)
+          echo "Waiting for local worker..."
+          ok=0
+          for i in $(seq 1 40); do
+            if curl -sf http://127.0.0.1:8799/ -o /tmp/idx.html; then ok=1; break; fi
+            sleep 2
+          done
+          pkill -f "wrangler" || true
+          if [ "$ok" != "1" ]; then
+            echo "Failed to prerender index via local worker." >&2
+            tail -80 /tmp/wrangler.log >&2 || true
+            exit 1
+          fi
+          mv /tmp/idx.html dist/client/index.html
           test -f dist/client/icon-512.png || cp public/icon-512.png dist/client/icon-512.png
           test -f dist/client/manifest.webmanifest || cp public/manifest.webmanifest dist/client/manifest.webmanifest
           test -f dist/client/favicon.ico || cp public/favicon.ico dist/client/favicon.ico
+          echo "Prerendered index.html:"
+          head -c 400 dist/client/index.html
+
 
       - name: Ensure Capacitor Android platform
         run: |
