@@ -1,23 +1,25 @@
-I found the actual error in the screenshot: **Setup Java 21 is failing because `cache: gradle` runs before the Android/Gradle project exists**. At that moment there is no `android/*.gradle` or `gradle-wrapper.properties`, so GitHub stops the workflow before APK build starts.
+Plan to fix the APK build carefully:
 
-Plan:
+1. **Stop guessing around the hidden log**
+   - I confirmed the failure is now at **Build debug APK (step 18)**, not Java/Node/SDK setup.
+   - GitHub blocks the detailed log without repository login, so the safest fix is to make the Android build path simpler and more stable.
 
-1. **Fix the Java setup step**
-   - Keep Java 21.
-   - Remove `cache: gradle` from `actions/setup-java`, because it requires Gradle files before Capacitor creates `android/`.
+2. **Pin mobile build versions to a stable set**
+   - Pin Capacitor Android/Core/CLI and local-notifications to exact compatible versions instead of loose `^` versions.
+   - Avoid the newest generated Android/Gradle combination if it is causing the repeated CI failure.
 
-2. **Add safe Gradle caching later**
-   - After `cap add android` creates the Android folder, add `actions/cache` with explicit paths like `~/.gradle/caches` and `~/.gradle/wrapper`.
-   - Use a cache key based on `android/**/*.gradle*` and `android/**/gradle-wrapper.properties` so it never fails before Android exists.
+3. **Simplify the GitHub Actions workflow**
+   - Keep Node 22, Java 21, Android SDK 36.
+   - Remove risky Gradle/Kotlin/ProGuard patching blocks that can create new failures.
+   - Use a clean order: install → build web → sync Capacitor → build APK → upload log/APK.
 
-3. **Keep Node 22 and Android SDK setup**
-   - Capacitor 8 needs Node 22, so keep that.
-   - Keep Android SDK setup and SDK package install.
+4. **Fix Android project config directly**
+   - Add `buildToolsVersion = '36.0.0'` in `android/variables.gradle`.
+   - Update `android/app/build.gradle` ProGuard file to the modern `proguard-android-optimize.txt`.
+   - Keep package/app ID as `com.avinash.dailyplanner` and APK name as `Daily-Planner-debug.apk`.
 
-4. **Make APK output reliable**
-   - Keep `cap sync android`, `gradlew clean assembleDebug`, Gradle log upload on failure, and APK artifact upload.
-   - Ensure the artifact remains named `Daily-Planner-debug-apk` with `Daily-Planner-debug.apk` inside.
+5. **Improve failure output**
+   - Keep `gradle-build.log` artifact upload on failure.
+   - Add a clearer error extraction step so if anything remains, the next screenshot/log shows the exact real cause.
 
-5. **Check for next likely failure before finishing**
-   - Review the workflow ordering so no step references Android files before they are created.
-   - Keep logs/artifacts so if any real Gradle compile error remains, it will show clearly instead of the current misleading Java/cache error.
+After this, you will run **Actions → Build Android APK → Run workflow** again; if it still fails, download/send the `android-gradle-build-log` artifact and I can fix the exact remaining line.
