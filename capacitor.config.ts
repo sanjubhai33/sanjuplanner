@@ -3,16 +3,10 @@ import type { CapacitorConfig } from "@capacitor/cli";
 const config: CapacitorConfig = {
   appId: "com.avinash.dailyplanner",
   appName: "Daily Planner",
-  webDir: "dist",
+  webDir: "dist/client",
   bundledWebRuntime: false,
-  server: {
-    // APK WebView loads the live published app so server functions
-    // (auth, AI report, cloud sync) work. Once cached, it also opens
-    // offline and localforage keeps tasks/journal/water usable.
-    url: "https://sanjuplanner.lovable.app",
-    androidScheme: "https",
-    cleartext: false,
-  },
+  // The APK loads the bundled web files so the planner opens without internet.
+  // Online-only features still call the hosted backend when a connection exists.
   android: {
     allowMixedContent: false,
   },

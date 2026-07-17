@@ -1,12 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { todayISO, loadRecentDays, type DayEntry } from "@/lib/journal";
 import { useDay, useUpdateDay } from "@/lib/use-journal";
 import { useTasks } from "@/lib/use-tasks";
 import { ensureReminders } from "@/lib/reminders";
-import { generateDailyReport } from "@/lib/report.functions";
+import { generateDailyReportOnline } from "@/lib/report-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -291,21 +290,18 @@ function ReportCard(props: {
   userName?: string;
   onReport: (r: { rating: number; tone: "proud" | "shame" | "mixed"; message: string }) => void;
 }) {
-  const runReport = useServerFn(generateDailyReport);
   const m = useMutation({
     mutationFn: () =>
-      runReport({
-        data: {
-          date: props.date,
-          totalTasks: props.totalTasks,
-          completedTasks: props.completedTasks,
-          waterCount: props.waterCount,
-          waterGoal: props.waterGoal,
-          satisfied: props.satisfied,
-          unsatisfied: props.unsatisfied,
-          history: props.history,
-          userName: props.userName,
-        },
+      generateDailyReportOnline({
+        date: props.date,
+        totalTasks: props.totalTasks,
+        completedTasks: props.completedTasks,
+        waterCount: props.waterCount,
+        waterGoal: props.waterGoal,
+        satisfied: props.satisfied,
+        unsatisfied: props.unsatisfied,
+        history: props.history,
+        userName: props.userName,
       }),
     onSuccess: (data) => props.onReport(data),
   });

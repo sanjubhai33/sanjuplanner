@@ -49,39 +49,17 @@ jobs:
       - name: Build web app
         run: npm run build
 
-      - name: Ensure Capacitor fallback files
+      - name: Verify bundled offline web app
         run: |
-          mkdir -p dist
-          if [ ! -f dist/index.html ]; then
-            cat > dist/index.html <<'HTML'
-          <!doctype html>
-          <html lang="en">
-            <head>
-              <meta charset="utf-8" />
-              <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-              <title>Daily Planner</title>
-              <meta http-equiv="refresh" content="0; url=https://sanjuplanner.lovable.app/" />
-              <style>
-                html,body{margin:0;height:100%;background:#0f172a;color:#e2e8f0;font-family:system-ui,-apple-system,sans-serif}
-                .wrap{height:100%;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
-                a{color:#d97757;text-decoration:none;font-weight:600}
-              </style>
-            </head>
-            <body>
-              <div class="wrap">
-                <div>
-                  <h1 style="font-size:20px;margin:0 0 8px">Daily Planner</h1>
-                  <p style="margin:0 0 16px;color:#94a3b8">Reconnecting…</p>
-                  <a href="https://sanjuplanner.lovable.app/">Open app</a>
-                </div>
-              </div>
-            </body>
-          </html>
-          HTML
+          if [ ! -f dist/client/index.html ]; then
+            echo "dist/client/index.html is missing. The APK must include the real built app for offline use." >&2
+            echo "Build output:" >&2
+            find dist -maxdepth 3 -type f | sort | sed -n '1,120p' >&2 || true
+            exit 1
           fi
-          cp public/icon-512.png dist/icon-512.png 2>/dev/null || true
-          cp public/manifest.webmanifest dist/manifest.webmanifest 2>/dev/null || true
-          cp public/favicon.ico dist/favicon.ico 2>/dev/null || true
+          test -f dist/client/icon-512.png || cp public/icon-512.png dist/client/icon-512.png
+          test -f dist/client/manifest.webmanifest || cp public/manifest.webmanifest dist/client/manifest.webmanifest
+          test -f dist/client/favicon.ico || cp public/favicon.ico dist/client/favicon.ico
 
       - name: Ensure Capacitor Android platform
         run: |
