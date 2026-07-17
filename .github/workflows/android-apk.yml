@@ -16,7 +16,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           cache: "npm"
 
       - name: Setup Java 21
@@ -31,6 +31,13 @@ jobs:
             echo "/usr/lib/jvm/java-21-openjdk-amd64/bin" >> "$GITHUB_PATH"
           fi
           java -version
+
+      - name: Check build tools
+        run: |
+          node -v
+          npm -v
+          java -version
+          npx --no-install cap --version
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps --no-audit --no-fund
@@ -75,7 +82,7 @@ jobs:
       - name: Ensure Capacitor Android platform
         run: |
           if [ ! -d "android" ]; then
-            npx --yes cap add android
+            npx --no-install cap add android
           fi
 
       - name: Generate Android icons & splash (optional)
@@ -92,7 +99,7 @@ jobs:
           fi
 
       - name: Sync Capacitor
-        run: npx --yes cap sync android
+        run: npx --no-install cap sync android
 
       - name: Grant gradlew permission
         run: chmod +x android/gradlew
