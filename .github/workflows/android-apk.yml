@@ -168,16 +168,29 @@ jobs:
 
       - name: Build debug APK
         working-directory: android
-        run: ./gradlew clean assembleDebug --no-daemon --stacktrace --info --warning-mode all
+        run: |
+          set -o pipefail
+          ./gradlew clean assembleDebug --no-daemon --stacktrace --info --warning-mode all 2>&1 | tee ../gradle-build.log
 
       - name: Show Android build outputs
         if: always()
         run: |
+          echo "=== Real Gradle errors, if any ==="
+          grep -nE "FAILURE:|What went wrong:|Execution failed|Could not|error:|Exception|BUILD FAILED" gradle-build.log | head -80 || true
           echo "=== APK outputs ==="
           ls -R android/app/build/outputs/apk || true
           echo "=== Android SDK ==="
           echo "ANDROID_HOME=$ANDROID_HOME"
           ls "$ANDROID_HOME/platforms" | tail -20 || true
+
+      - name: Upload Gradle build log if failed
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: android-gradle-build-log
+          path: gradle-build.log
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Prepare phone-friendly APK file
         run: |
