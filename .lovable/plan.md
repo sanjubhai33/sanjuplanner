@@ -1,25 +1,23 @@
-Plan to fix the APK build carefully:
+Problem confirmed: the APK is currently configured to load `https://sanjuplanner.lovable.app` inside the app WebView. Capacitor’s own docs say `server.url` is for live-reload/external loading and is not intended for production. That means when internet is off, the APK tries to open the website and fails instead of opening the bundled app files.
 
-1. **Stop guessing around the hidden log**
-   - I confirmed the failure is now at **Build debug APK (step 18)**, not Java/Node/SDK setup.
-   - GitHub blocks the detailed log without repository login, so the safest fix is to make the Android build path simpler and more stable.
+Plan:
+1. **Make APK truly offline-first**
+   - Remove the external `server.url` from `capacitor.config.ts`.
+   - Keep the app bundled from the local built web files so the APK opens without internet.
 
-2. **Pin mobile build versions to a stable set**
-   - Pin Capacitor Android/Core/CLI and local-notifications to exact compatible versions instead of loose `^` versions.
-   - Avoid the newest generated Android/Gradle combination if it is causing the repeated CI failure.
+2. **Stop building a fake online fallback**
+   - Update the GitHub Actions APK workflow so it does not create an `index.html` that redirects to the live website.
+   - If the real local app build is missing, the workflow should fail clearly instead of producing an APK that cannot work offline.
 
-3. **Simplify the GitHub Actions workflow**
-   - Keep Node 22, Java 21, Android SDK 36.
-   - Remove risky Gradle/Kotlin/ProGuard patching blocks that can create new failures.
-   - Use a clean order: install → build web → sync Capacitor → build APK → upload log/APK.
+3. **Preserve online features when internet returns**
+   - Keep login, cloud sync, and AI reports online-only.
+   - Keep tasks, journal, water tracker, reminders, and saved local data usable offline.
+   - Existing sync manager will upload/download data again when internet comes back.
 
-4. **Fix Android project config directly**
-   - Add `buildToolsVersion = '36.0.0'` in `android/variables.gradle`.
-   - Update `android/app/build.gradle` ProGuard file to the modern `proguard-android-optimize.txt`.
-   - Keep package/app ID as `com.avinash.dailyplanner` and APK name as `Daily-Planner-debug.apk`.
+4. **Clarify first-open behavior**
+   - First login still needs internet.
+   - After logging in once, the app can open offline and use locally saved planner data.
 
-5. **Improve failure output**
-   - Keep `gradle-build.log` artifact upload on failure.
-   - Add a clearer error extraction step so if anything remains, the next screenshot/log shows the exact real cause.
-
-After this, you will run **Actions → Build Android APK → Run workflow** again; if it still fails, download/send the `android-gradle-build-log` artifact and I can fix the exact remaining line.
+5. **Rebuild APK**
+   - After these changes, run GitHub Actions again and download the new APK.
+   - The old APK must be replaced/reinstalled because native app config is inside the APK.
