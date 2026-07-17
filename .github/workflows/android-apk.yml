@@ -27,7 +27,6 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
-          cache: gradle
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4.0.1
@@ -89,6 +88,16 @@ jobs:
           if [ ! -d "android" ]; then
             ./node_modules/.bin/cap add android
           fi
+
+      - name: Cache Gradle after Android project exists
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('android/**/*.gradle*', 'android/**/gradle-wrapper.properties', 'android/gradle.properties', 'android/settings.gradle') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
       - name: Harden generated Android project
         run: |

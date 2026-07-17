@@ -1,40 +1,23 @@
-Do I know what the issue is? Yes.
-
-The new screenshot shows the APK build now reaches **Check build tools**, but fails on the Capacitor command. The problem is that the workflow runs:
-
-```text
-npx --no-install cap --version
-```
-
-**before** `npm install` runs. On GitHub’s fresh build machine, dependencies are not installed yet, so the local Capacitor CLI executable is not available and npm prints:
-
-```text
-npm error could not determine executable to run
-```
-
-Files involved:
-- `.github/workflows/android-apk.yml` — wrong step order and fragile Capacitor command placement
-- `package.json` / `package-lock.json` — Capacitor CLI is already present, so the workflow should install dependencies first and then call the local CLI
+I found the actual error in the screenshot: **Setup Java 21 is failing because `cache: gradle` runs before the Android/Gradle project exists**. At that moment there is no `android/*.gradle` or `gradle-wrapper.properties`, so GitHub stops the workflow before APK build starts.
 
 Plan:
-1. Move dependency installation before any Capacitor CLI command.
-2. Replace the failing pre-install `npx --no-install cap --version` check with a post-install local CLI check.
-3. Use stable local commands for Capacitor:
-   ```text
-   ./node_modules/.bin/cap --version
-   ./node_modules/.bin/cap add android
-   ./node_modules/.bin/cap sync android
-   ```
-4. Keep Node 22 and Java 21 because the log now confirms those are working.
-5. Keep the final APK artifact name exactly as `Daily-Planner-debug-apk` with `Daily-Planner-debug.apk` inside it.
-6. Verify the workflow YAML structure after editing so you only need to press **Run workflow** again.
 
-After you approve, I’ll apply this fix directly.
+1. **Fix the Java setup step**
+   - Keep Java 21.
+   - Remove `cache: gradle` from `actions/setup-java`, because it requires Gradle files before Capacitor creates `android/`.
 
-<presentation-actions>
-  <presentation-open-history>View History</presentation-open-history>
-</presentation-actions>
+2. **Add safe Gradle caching later**
+   - After `cap add android` creates the Android folder, add `actions/cache` with explicit paths like `~/.gradle/caches` and `~/.gradle/wrapper`.
+   - Use a cache key based on `android/**/*.gradle*` and `android/**/gradle-wrapper.properties` so it never fails before Android exists.
 
-<presentation-actions>
-<presentation-link url="https://docs.lovable.dev/tips-tricks/troubleshooting">Troubleshooting docs</presentation-link>
-</presentation-actions>
+3. **Keep Node 22 and Android SDK setup**
+   - Capacitor 8 needs Node 22, so keep that.
+   - Keep Android SDK setup and SDK package install.
+
+4. **Make APK output reliable**
+   - Keep `cap sync android`, `gradlew clean assembleDebug`, Gradle log upload on failure, and APK artifact upload.
+   - Ensure the artifact remains named `Daily-Planner-debug-apk` with `Daily-Planner-debug.apk` inside.
+
+5. **Check for next likely failure before finishing**
+   - Review the workflow ordering so no step references Android files before they are created.
+   - Keep logs/artifacts so if any real Gradle compile error remains, it will show clearly instead of the current misleading Java/cache error.
