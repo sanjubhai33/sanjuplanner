@@ -130,8 +130,9 @@ jobs:
           variables = Path('android/variables.gradle')
           vtext = variables.read_text()
           if "buildToolsVersion" not in vtext:
-              vtext = vtext.replace("targetSdkVersion = 36", "targetSdkVersion = 36\n    buildToolsVersion = '35.0.0'")
+              vtext = vtext.replace("targetSdkVersion = 36", "targetSdkVersion = 36\n    buildToolsVersion = '36.0.0'")
               variables.write_text(vtext)
+
 
           root_build = Path('android/build.gradle')
           btext = root_build.read_text()
