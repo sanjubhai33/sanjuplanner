@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import type { DailyReportInput, DailyReportOutput } from "./report.server";
+import type { DailyReportInput, DailyReportOutput } from "./report.shared";
 
 const PUBLISHED_API_BASE = "https://sanjuplanner.lovable.app";
 

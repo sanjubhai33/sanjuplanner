@@ -15,6 +15,7 @@ import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TaskNewRouteImport } from './routes/task.new'
 import { Route as TaskIdRouteImport } from './routes/task.$id'
+import { Route as ApiPublicDailyReportRouteImport } from './routes/api/public/daily-report'
 
 const UpcomingRoute = UpcomingRouteImport.update({
   id: '/upcoming',
@@ -46,6 +47,11 @@ const TaskIdRoute = TaskIdRouteImport.update({
   path: '/task/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicDailyReportRoute = ApiPublicDailyReportRouteImport.update({
+  id: '/api/public/daily-report',
+  path: '/api/public/daily-report',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -54,6 +60,7 @@ export interface FileRoutesByFullPath {
   '/upcoming': typeof UpcomingRoute
   '/task/$id': typeof TaskIdRoute
   '/task/new': typeof TaskNewRoute
+  '/api/public/daily-report': typeof ApiPublicDailyReportRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByTo {
   '/upcoming': typeof UpcomingRoute
   '/task/$id': typeof TaskIdRoute
   '/task/new': typeof TaskNewRoute
+  '/api/public/daily-report': typeof ApiPublicDailyReportRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,6 +79,7 @@ export interface FileRoutesById {
   '/upcoming': typeof UpcomingRoute
   '/task/$id': typeof TaskIdRoute
   '/task/new': typeof TaskNewRoute
+  '/api/public/daily-report': typeof ApiPublicDailyReportRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -81,8 +90,16 @@ export interface FileRouteTypes {
     | '/upcoming'
     | '/task/$id'
     | '/task/new'
+    | '/api/public/daily-report'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/calendar' | '/journal' | '/upcoming' | '/task/$id' | '/task/new'
+  to:
+    | '/'
+    | '/calendar'
+    | '/journal'
+    | '/upcoming'
+    | '/task/$id'
+    | '/task/new'
+    | '/api/public/daily-report'
   id:
     | '__root__'
     | '/'
@@ -91,6 +108,7 @@ export interface FileRouteTypes {
     | '/upcoming'
     | '/task/$id'
     | '/task/new'
+    | '/api/public/daily-report'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -100,6 +118,7 @@ export interface RootRouteChildren {
   UpcomingRoute: typeof UpcomingRoute
   TaskIdRoute: typeof TaskIdRoute
   TaskNewRoute: typeof TaskNewRoute
+  ApiPublicDailyReportRoute: typeof ApiPublicDailyReportRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -146,6 +165,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TaskIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/daily-report': {
+      id: '/api/public/daily-report'
+      path: '/api/public/daily-report'
+      fullPath: '/api/public/daily-report'
+      preLoaderRoute: typeof ApiPublicDailyReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -156,6 +182,7 @@ const rootRouteChildren: RootRouteChildren = {
   UpcomingRoute: UpcomingRoute,
   TaskIdRoute: TaskIdRoute,
   TaskNewRoute: TaskNewRoute,
+  ApiPublicDailyReportRoute: ApiPublicDailyReportRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

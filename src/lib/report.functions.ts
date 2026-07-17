@@ -1,9 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
-  DailyReportInputSchema,
   generateDailyReportForInput,
 } from "./report.server";
+import { DailyReportInputSchema } from "./report.shared";
 
 export const generateDailyReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
