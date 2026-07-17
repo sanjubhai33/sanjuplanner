@@ -129,15 +129,15 @@ jobs:
           if marker not in btext:
               btext += """
 
-// Lovable CI Android build hardening
-subprojects { subproject ->
-    afterEvaluate {
-        if (subproject.hasProperty('android') && rootProject.ext.has('buildToolsVersion')) {
-            subproject.android.buildToolsVersion = rootProject.ext.buildToolsVersion
-        }
-    }
-}
-"""
+          // Lovable CI Android build hardening
+          subprojects { subproject ->
+              afterEvaluate {
+                  if (subproject.hasProperty('android') && rootProject.ext.has('buildToolsVersion')) {
+                      subproject.android.buildToolsVersion = rootProject.ext.buildToolsVersion
+                  }
+              }
+          }
+          """
               root_build.write_text(btext)
           PY
 
