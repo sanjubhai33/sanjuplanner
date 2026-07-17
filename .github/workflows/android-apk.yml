@@ -7,38 +7,35 @@ on:
 
 jobs:
   build-apk:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
+    env:
+      GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.parallel=false -Dorg.gradle.workers.max=2 -Dfile.encoding=UTF-8
+      NODE_OPTIONS: --max-old-space-size=4096
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: "22"
           cache: "npm"
 
       - name: Setup Java 21
-        run: |
-          if [ -n "${JAVA_HOME_21_X64:-}" ]; then
-            echo "JAVA_HOME=$JAVA_HOME_21_X64" >> "$GITHUB_ENV"
-            echo "$JAVA_HOME_21_X64/bin" >> "$GITHUB_PATH"
-          else
-            sudo apt-get update
-            sudo apt-get install -y openjdk-21-jdk
-            echo "JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64" >> "$GITHUB_ENV"
-            echo "/usr/lib/jvm/java-21-openjdk-amd64/bin" >> "$GITHUB_PATH"
-          fi
-          java -version
+        uses: actions/setup-java@v5.6.0
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4.0.1
 
       - name: Install Android SDK packages
         run: |
           yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+          sdkmanager --install "platform-tools" "platforms;android-36" "build-tools;35.0.0"
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps --no-audit --no-fund
@@ -93,6 +90,63 @@ jobs:
             ./node_modules/.bin/cap add android
           fi
 
+      - name: Harden generated Android project
+        run: |
+          set -euo pipefail
+          SDK_DIR="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
+          if [ -z "$SDK_DIR" ]; then
+            echo "ANDROID_HOME/ANDROID_SDK_ROOT is missing" >&2
+            exit 1
+          fi
+          printf 'sdk.dir=%s\n' "$SDK_DIR" > android/local.properties
+
+          python3 - <<'PY'
+          from pathlib import Path
+
+          props = Path('android/gradle.properties')
+          text = props.read_text() if props.exists() else ''
+          settings = {
+              'org.gradle.jvmargs': '-Xmx4096m -Dfile.encoding=UTF-8 -XX:+UseParallelGC',
+              'org.gradle.daemon': 'false',
+              'org.gradle.parallel': 'false',
+              'org.gradle.workers.max': '2',
+              'android.useAndroidX': 'true',
+              'android.enableJetifier': 'true',
+          }
+          lines = [line for line in text.splitlines() if not any(line.startswith(f'{key}=') for key in settings)]
+          lines.extend(f'{key}={value}' for key, value in settings.items())
+          props.write_text('\n'.join(lines).strip() + '\n')
+
+          variables = Path('android/variables.gradle')
+          vtext = variables.read_text()
+          if "buildToolsVersion" not in vtext:
+              vtext = vtext.replace("targetSdkVersion = 36", "targetSdkVersion = 36\n    buildToolsVersion = '35.0.0'")
+              variables.write_text(vtext)
+
+          root_build = Path('android/build.gradle')
+          btext = root_build.read_text()
+          marker = "// Lovable CI Android build hardening"
+          if marker not in btext:
+              btext += """
+
+// Lovable CI Android build hardening
+subprojects { subproject ->
+    afterEvaluate {
+        if (subproject.hasProperty('android') && rootProject.ext.has('buildToolsVersion')) {
+            subproject.android.buildToolsVersion = rootProject.ext.buildToolsVersion
+        }
+    }
+}
+"""
+              root_build.write_text(btext)
+          PY
+
+          echo "JAVA_HOME=$JAVA_HOME"
+          java -version
+          echo "ANDROID_HOME=$SDK_DIR"
+          ls "$SDK_DIR/platforms" | tail -10
+          ls "$SDK_DIR/build-tools" | tail -10
+
       - name: Generate Android icons & splash (optional)
         run: |
           if [ -f "public/icon-512.png" ]; then
@@ -114,7 +168,7 @@ jobs:
 
       - name: Build debug APK
         working-directory: android
-        run: ./gradlew clean assembleDebug --no-daemon --stacktrace --warning-mode all
+        run: ./gradlew clean assembleDebug --no-daemon --stacktrace --info --warning-mode all
 
       - name: Show Android build outputs
         if: always()
@@ -131,7 +185,7 @@ jobs:
           cp android/app/build/outputs/apk/debug/app-debug.apk apk/Daily-Planner-debug.apk
 
       - name: Upload APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Daily-Planner-debug-apk
           path: apk/Daily-Planner-debug.apk
