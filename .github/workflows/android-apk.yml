@@ -34,7 +34,8 @@ jobs:
       - name: Install Android SDK packages
         run: |
           yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager --install "platform-tools" "platforms;android-36" "build-tools;35.0.0"
+          sdkmanager --install "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps --no-audit --no-fund
@@ -129,8 +130,9 @@ jobs:
           variables = Path('android/variables.gradle')
           vtext = variables.read_text()
           if "buildToolsVersion" not in vtext:
-              vtext = vtext.replace("targetSdkVersion = 36", "targetSdkVersion = 36\n    buildToolsVersion = '35.0.0'")
+              vtext = vtext.replace("targetSdkVersion = 36", "targetSdkVersion = 36\n    buildToolsVersion = '36.0.0'")
               variables.write_text(vtext)
+
 
           root_build = Path('android/build.gradle')
           btext = root_build.read_text()
