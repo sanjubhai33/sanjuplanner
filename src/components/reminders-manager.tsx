@@ -1,12 +1,11 @@
 import { useEffect } from "react";
 import { useTasks } from "@/lib/use-tasks";
-import { useServerFn } from "@tanstack/react-start";
 import {
   ensureReminders,
   scheduleTaskReminders,
   scheduleAutoReport,
 } from "@/lib/reminders";
-import { generateDailyReport } from "@/lib/report.functions";
+import { generateDailyReportOnline } from "@/lib/report-client";
 import { loadDay, saveDay, todayISO } from "@/lib/journal";
 import { loadTasks } from "@/lib/tasks";
 import { useSession, useDisplayName } from "@/lib/session";
@@ -14,7 +13,6 @@ import { useSession, useDisplayName } from "@/lib/session";
 /** Mounts inside the app shell — schedules water/journal/task/report reminders. */
 export function RemindersManager() {
   const { data: tasks } = useTasks();
-  const runReport = useServerFn(generateDailyReport);
   const { user } = useSession();
   const userName = useDisplayName(user);
 
@@ -37,17 +35,15 @@ export function RemindersManager() {
       const todays = allTasks.filter((t) => t.date === date);
       const completed = todays.filter((t) => t.completed).length;
       try {
-        const result = await runReport({
-          data: {
-            date,
-            totalTasks: todays.length,
-            completedTasks: completed,
-            waterCount: day.waterCount,
-            waterGoal: day.waterGoal,
-            satisfied: day.satisfied,
-            unsatisfied: day.unsatisfied,
-            userName,
-          },
+        const result = await generateDailyReportOnline({
+          date,
+          totalTasks: todays.length,
+          completedTasks: completed,
+          waterCount: day.waterCount,
+          waterGoal: day.waterGoal,
+          satisfied: day.satisfied,
+          unsatisfied: day.unsatisfied,
+          userName,
         });
         await saveDay({
           ...day,
@@ -66,7 +62,7 @@ export function RemindersManager() {
         } catch {}
       } catch {}
     });
-  }, [runReport, userName]);
+  }, [userName]);
 
   return null;
 }

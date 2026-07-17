@@ -28,6 +28,12 @@ export function useDisplayName(user: User | null) {
       return;
     }
     let cancelled = false;
+    const fallback =
+      (user.user_metadata?.display_name as string) ||
+      (user.user_metadata?.full_name as string) ||
+      user.email?.split("@")[0] ||
+      "";
+    setName(fallback);
     supabase
       .from("profiles")
       .select("display_name")
@@ -35,13 +41,7 @@ export function useDisplayName(user: User | null) {
       .maybeSingle()
       .then(({ data }) => {
         if (cancelled) return;
-        setName(
-          data?.display_name ||
-            (user.user_metadata?.display_name as string) ||
-            (user.user_metadata?.full_name as string) ||
-            user.email?.split("@")[0] ||
-            "",
-        );
+        setName(data?.display_name || fallback);
       });
     return () => {
       cancelled = true;
