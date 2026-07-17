@@ -148,19 +148,6 @@ jobs:
           ls "$SDK_DIR/platforms" | tail -10
           ls "$SDK_DIR/build-tools" | tail -10
 
-      - name: Generate Android icons & splash (optional)
-        run: |
-          if [ -f "public/icon-512.png" ]; then
-            mkdir -p assets
-            cp public/icon-512.png assets/icon-only.png || true
-            cp public/icon-512.png assets/icon-foreground.png || true
-            npx --yes @capacitor/assets@latest generate --android \
-              --iconBackgroundColor "#0f172a" \
-              --iconBackgroundColorDark "#0f172a" \
-              --splashBackgroundColor "#0f172a" \
-              --splashBackgroundColorDark "#0f172a" || true
-          fi
-
       - name: Sync Capacitor
         run: ./node_modules/.bin/cap sync android
 
