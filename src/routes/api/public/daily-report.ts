@@ -67,11 +67,23 @@ export const Route = createFileRoute("/api/public/daily-report")({
           return json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { DailyReportInputSchema } = await import("@/lib/report.shared");
-        const { generateDailyReportForInput } = await import("@/lib/report.server");
-        const input = DailyReportInputSchema.parse(await request.json());
-        const report = await generateDailyReportForInput(input);
-        return json(report);
+        try {
+          const { DailyReportInputSchema } = await import("@/lib/report.shared");
+          const { generateDailyReportForInput } = await import("@/lib/report.server");
+          const input = DailyReportInputSchema.parse(await request.json());
+          const report = await generateDailyReportForInput(input);
+          return json(report);
+        } catch (error) {
+          return json(
+            {
+              error:
+                error instanceof Error
+                  ? error.message
+                  : "Couldn't generate the daily report",
+            },
+            { status: 400 },
+          );
+        }
       },
     },
   },
