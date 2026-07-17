@@ -148,8 +148,30 @@ jobs:
                   }
               }
           }
+
+          allprojects {
+              configurations.configureEach {
+                  resolutionStrategy {
+                      force 'org.jetbrains.kotlin:kotlin-stdlib:2.2.20'
+                      force 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.20'
+                      force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.20'
+                  }
+              }
+          }
           """
               root_build.write_text(btext)
+
+          patched = []
+          for folder in [Path('android'), Path('node_modules/@capacitor')]:
+              if not folder.exists():
+                  continue
+              for gradle_file in folder.rglob('*.gradle'):
+                  gtext = gradle_file.read_text()
+                  updated = gtext.replace("getDefaultProguardFile('proguard-android.txt')", "getDefaultProguardFile('proguard-android-optimize.txt')")
+                  if updated != gtext:
+                      gradle_file.write_text(updated)
+                      patched.append(str(gradle_file))
+          print('Patched ProGuard files:', patched)
           PY
 
           echo "JAVA_HOME=$JAVA_HOME"
@@ -173,6 +195,24 @@ jobs:
 
       - name: Sync Capacitor
         run: ./node_modules/.bin/cap sync android
+
+      - name: Patch Gradle compatibility after sync
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          patched = []
+          for folder in [Path('android'), Path('node_modules/@capacitor')]:
+              if not folder.exists():
+                  continue
+              for gradle_file in folder.rglob('*.gradle'):
+                  gtext = gradle_file.read_text()
+                  updated = gtext.replace("getDefaultProguardFile('proguard-android.txt')", "getDefaultProguardFile('proguard-android-optimize.txt')")
+                  if updated != gtext:
+                      gradle_file.write_text(updated)
+                      patched.append(str(gradle_file))
+          print('Patched ProGuard files after sync:', patched)
+          PY
 
       - name: Grant gradlew permission
         run: chmod +x android/gradlew
