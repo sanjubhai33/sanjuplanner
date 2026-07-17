@@ -1,43 +1,43 @@
-## Goal
-Make the installed Android APK behave like the web app: full features when online, and continue to work offline (tasks, journal, water — all localforage-backed) using cached assets.
+## Diagnosis
 
-## Current state (verified)
-- App is TanStack Start with SSR + server functions (`requireSupabaseAuth`, AI report). It does **not** produce a pure static `dist/` bundle — the build outputs to `.output/`, not `dist/`.
-- `capacitor.config.ts` still says `webDir: "dist"`. If the GitHub Actions workflow runs `cap sync` against `dist/`, the APK ships an empty/placeholder shell → app opens to a blank/"web not found" screen.
-- Server functions (AI daily report, auth-gated data) require a live server. A fully-embedded static APK can't run them.
-- Local data (tasks / journal / water / notes) already works offline via localforage and syncs on reconnect — that part is fine, it just needs the WebView to actually load the app.
+Job `build-apk` failed in **15 seconds** — bahut jaldi fail hua, matlab Gradle build tak pahucha hi nahi. Itni jaldi fail hone ka matlab lagbhag hamesha `bun install` step hai (lockfile mismatch, ya bun version conflict CI me). Gradle build hota to minimum 2-3 minute lagte.
 
-## Approach: hybrid APK pointing at the published site
-The simplest reliable way to get both online + offline in one APK:
+Exact log dekhne ke liye user ko `build-apk` pe click karke red step expand karna padta — but plan is workflow ko itna robust bana do ki ye class of failure dobara na aaye.
 
-1. **Point Capacitor at the published URL** so the WebView always loads the real app (server functions work, auth works, AI report works):
-   ```ts
-   // capacitor.config.ts
-   server: {
-     url: "https://sanjuplanner.lovable.app",
-     androidScheme: "https",
-     cleartext: false,
-   }
-   ```
-2. **Ship a minimal bundled fallback** in `dist/` (an `index.html` that redirects / shows "Reconnecting…") so `cap sync` has something to package and the first cold offline launch shows a friendly screen instead of a Chromium error page.
-3. **Offline behavior** relies on:
-   - localforage (already in place) → tasks, journal, water, notes all readable/editable offline.
-   - The Android WebView's HTTP cache → after first online launch, static JS/CSS/HTML are cached, so re-opens work offline.
-   - On reconnect, `SyncManager` pushes local changes to the cloud (already implemented).
-4. **Update `.github/workflows/android-apk.yml`**:
-   - Replace `bun run build` (produces `.output/`, not `dist/`) with a step that writes the fallback `dist/index.html` before `cap sync`.
-   - Keep the rest of the pipeline (icons, gradle assembleDebug, artifact upload as `Daily-Planner-debug.apk`).
-5. **README-mobile.md**: update the "how to build APK" section to describe the new online-first + offline-cache model in plain Hindi/English so you know what to expect (e.g. "first launch needs internet; after that it opens even without internet").
+## Fix — `.github/workflows/android-apk.yml` rewrite
 
-## Trade-offs (so you know)
-- AI daily report + login + cross-device sync **require internet** — no way around that, they call the server. Everything else (writing tasks, journal, water tracker, reminders/notifications) works fully offline.
-- First install must be done with internet at least once so the WebView caches the app.
-- Later, when you want a "true native" fully-offline-capable APK (Play Store style, no dependency on the published URL), we'd have to migrate the server functions to `/api/public/*` routes on the same domain and add a proper service worker — that's a bigger change and can be a next step.
+1. **Bun hatao, npm use karo.** `bun install` GitHub Actions me lockfile-strictness aur cache issues ki wajah se flaky hai. Node 20 + `npm install --legacy-peer-deps` reliable hai kyunki `package-lock.json`/`package.json` sab standard hai.
+2. **`npm install` (not `npm ci`)** — user ke paas exact `package-lock.json` sync na ho to `ci` fail karta hai; `install` forgiving hai.
+3. **Har step ke aage `--stacktrace` / verbose flag** taaki agar fail ho to log me clear reason dikhe.
+4. **Node 20 action versions latest** (`actions/checkout@v4`, `setup-node@v4`, `setup-java@v4`) — warning "Node.js 20 deprecated" ignore-able hai, failure ki wajah nahi.
+5. **Gradle ke liye `--stacktrace --info`** add, taaki agar assembleDebug fail ho to Java/SDK issue clearly dikhe.
+6. **`@capacitor/assets` step ko optional rakho** (already `|| true`) — icons na ban paye to bhi APK banega.
+7. **APK naam aur upload waisa hi rakho** — user ka existing flow.
 
-## Files to change (build mode)
-- `capacitor.config.ts` — add `server.url`.
-- `.github/workflows/android-apk.yml` — emit `dist/index.html` fallback before `cap sync`.
-- `README-mobile.md` — refresh install/offline notes.
+## Details section (technical)
 
-## After you approve
-Run the GitHub Action "Build Android APK" → download `Daily-Planner-debug.apk` artifact → install on your phone. First open with internet; after that it opens offline too.
+New workflow structure:
+
+```text
+- checkout
+- setup-node 20
+- setup-java 17 (temurin)
+- npm install --legacy-peer-deps --no-audit --no-fund
+- write dist/index.html fallback
+- npx cap add android (if missing)
+- npx cap sync android
+- chmod +x android/gradlew
+- cd android && ./gradlew assembleDebug --no-daemon --stacktrace
+- copy APK → apk/Daily-Planner-debug.apk
+- upload-artifact@v4
+```
+
+Bun-related steps hataye jaayenge. `bunx` calls → `npx`.
+
+## User ke liye step (plan approve karne ke baad)
+
+1. Main approve karo, workflow file update ho jayegi + auto push hoga
+2. GitHub → Actions → naya run apne aap chalega (push trigger se) ya "Run workflow" dabao
+3. 8-12 min me `Daily-Planner-debug.apk` artifact ready
+
+Agar phir bhi fail ho, is baar exact failing step ka log paste karna — npm-based workflow me error message clear aata hai.
