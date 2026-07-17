@@ -36,9 +36,8 @@ jobs:
           yes | sdkmanager --licenses >/dev/null || true
           sdkmanager --install "platform-tools" "platforms;android-36" "build-tools;36.0.0"
 
-
       - name: Install dependencies
-        run: npm install --legacy-peer-deps --no-audit --no-fund
+        run: npm ci --legacy-peer-deps --no-audit --no-fund
 
       - name: Check build tools
         run: |
@@ -131,46 +130,15 @@ jobs:
           vtext = variables.read_text()
           if "buildToolsVersion" not in vtext:
               vtext = vtext.replace("targetSdkVersion = 36", "targetSdkVersion = 36\n    buildToolsVersion = '36.0.0'")
-              variables.write_text(vtext)
-
-
-          root_build = Path('android/build.gradle')
-          btext = root_build.read_text()
-          marker = "// Lovable CI Android build hardening"
-          if marker not in btext:
-              btext += """
-
-          // Lovable CI Android build hardening
-          subprojects { subproject ->
-              afterEvaluate {
-                  if (subproject.hasProperty('android') && rootProject.ext.has('buildToolsVersion')) {
-                      subproject.android.buildToolsVersion = rootProject.ext.buildToolsVersion
-                  }
-              }
-          }
-
-          allprojects {
-              configurations.configureEach {
-                  resolutionStrategy {
-                      force 'org.jetbrains.kotlin:kotlin-stdlib:2.2.20'
-                      force 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.20'
-                      force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.20'
-                  }
-              }
-          }
-          """
-              root_build.write_text(btext)
+          variables.write_text(vtext)
 
           patched = []
-          for folder in [Path('android'), Path('node_modules/@capacitor')]:
-              if not folder.exists():
-                  continue
-              for gradle_file in folder.rglob('*.gradle'):
-                  gtext = gradle_file.read_text()
-                  updated = gtext.replace("getDefaultProguardFile('proguard-android.txt')", "getDefaultProguardFile('proguard-android-optimize.txt')")
-                  if updated != gtext:
-                      gradle_file.write_text(updated)
-                      patched.append(str(gradle_file))
+          for gradle_file in Path('android').rglob('*.gradle'):
+              gtext = gradle_file.read_text()
+              updated = gtext.replace("getDefaultProguardFile('proguard-android.txt')", "getDefaultProguardFile('proguard-android-optimize.txt')")
+              if updated != gtext:
+                  gradle_file.write_text(updated)
+                  patched.append(str(gradle_file))
           print('Patched ProGuard files:', patched)
           PY
 
@@ -179,19 +147,6 @@ jobs:
           echo "ANDROID_HOME=$SDK_DIR"
           ls "$SDK_DIR/platforms" | tail -10
           ls "$SDK_DIR/build-tools" | tail -10
-
-      - name: Generate Android icons & splash (optional)
-        run: |
-          if [ -f "public/icon-512.png" ]; then
-            mkdir -p assets
-            cp public/icon-512.png assets/icon-only.png || true
-            cp public/icon-512.png assets/icon-foreground.png || true
-            npx --yes @capacitor/assets@latest generate --android \
-              --iconBackgroundColor "#0f172a" \
-              --iconBackgroundColorDark "#0f172a" \
-              --splashBackgroundColor "#0f172a" \
-              --splashBackgroundColorDark "#0f172a" || true
-          fi
 
       - name: Sync Capacitor
         run: ./node_modules/.bin/cap sync android
@@ -202,15 +157,12 @@ jobs:
           from pathlib import Path
 
           patched = []
-          for folder in [Path('android'), Path('node_modules/@capacitor')]:
-              if not folder.exists():
-                  continue
-              for gradle_file in folder.rglob('*.gradle'):
-                  gtext = gradle_file.read_text()
-                  updated = gtext.replace("getDefaultProguardFile('proguard-android.txt')", "getDefaultProguardFile('proguard-android-optimize.txt')")
-                  if updated != gtext:
-                      gradle_file.write_text(updated)
-                      patched.append(str(gradle_file))
+          for gradle_file in Path('android').rglob('*.gradle'):
+              gtext = gradle_file.read_text()
+              updated = gtext.replace("getDefaultProguardFile('proguard-android.txt')", "getDefaultProguardFile('proguard-android-optimize.txt')")
+              if updated != gtext:
+                  gradle_file.write_text(updated)
+                  patched.append(str(gradle_file))
           print('Patched ProGuard files after sync:', patched)
           PY
 
