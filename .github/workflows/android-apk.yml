@@ -32,8 +32,37 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Build web bundle
-        run: bun run build
+      - name: Prepare offline fallback bundle (dist/)
+        run: |
+          mkdir -p dist
+          cat > dist/index.html <<'HTML'
+          <!doctype html>
+          <html lang="en">
+            <head>
+              <meta charset="utf-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+              <title>Daily Planner</title>
+              <meta http-equiv="refresh" content="0; url=https://sanjuplanner.lovable.app/" />
+              <style>
+                html,body{margin:0;height:100%;background:#0f172a;color:#e2e8f0;font-family:system-ui,-apple-system,sans-serif}
+                .wrap{height:100%;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
+                a{color:#d97757;text-decoration:none;font-weight:600}
+              </style>
+            </head>
+            <body>
+              <div class="wrap">
+                <div>
+                  <h1 style="font-size:20px;margin:0 0 8px">Daily Planner</h1>
+                  <p style="margin:0 0 16px;color:#94a3b8">Reconnecting…</p>
+                  <a href="https://sanjuplanner.lovable.app/">Open app</a>
+                </div>
+              </div>
+            </body>
+          </html>
+          HTML
+          cp public/icon-512.png dist/icon-512.png 2>/dev/null || true
+          cp public/manifest.webmanifest dist/manifest.webmanifest 2>/dev/null || true
+          cp public/favicon.ico dist/favicon.ico 2>/dev/null || true
 
       - name: Ensure Capacitor Android platform
         run: |
