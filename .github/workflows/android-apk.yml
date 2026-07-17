@@ -24,7 +24,11 @@ jobs:
         with:
           distribution: "temurin"
           java-version: "21"
-          cache: "gradle"
+
+      - name: Confirm Java is ready
+        run: |
+          java -version
+          echo "JAVA_HOME=$JAVA_HOME"
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps --no-audit --no-fund
