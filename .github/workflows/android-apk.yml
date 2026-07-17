@@ -50,33 +50,46 @@ jobs:
         run: npm run build
 
       - name: Prerender offline index.html via built worker
+        env:
+          WRANGLER_SEND_METRICS: "false"
+          CI: "true"
         run: |
           set -e
-          rm -rf .wrangler
+          rm -rf .wrangler dist/server/.wrangler
           if [ ! -f dist/server/wrangler.json ]; then
             echo "dist/server/wrangler.json missing — nitro build did not produce a worker." >&2
             find dist -maxdepth 3 -type f | sort | sed -n '1,120p' >&2 || true
             exit 1
           fi
-          (cd dist/server && npx --yes wrangler@4 dev --local --port 8799 --ip 127.0.0.1 > /tmp/wrangler.log 2>&1 &)
-          echo "Waiting for local worker..."
+          pushd dist/server >/dev/null
+          nohup npx --yes wrangler@4 dev --port 8799 --ip 127.0.0.1 --log-level warn >/tmp/wrangler.log 2>&1 &
+          WPID=$!
+          popd >/dev/null
+          echo "Waiting for local worker (pid=$WPID)..."
           ok=0
-          for i in $(seq 1 40); do
+          for i in $(seq 1 60); do
             if curl -sf http://127.0.0.1:8799/ -o /tmp/idx.html; then ok=1; break; fi
+            if ! kill -0 $WPID 2>/dev/null; then
+              echo "wrangler process exited early." >&2
+              break
+            fi
             sleep 2
           done
-          pkill -f "wrangler" || true
-          if [ "$ok" != "1" ]; then
+          echo "=== wrangler.log (tail) ==="
+          tail -120 /tmp/wrangler.log || true
+          kill $WPID 2>/dev/null || true
+          pkill -f "wrangler" 2>/dev/null || true
+          if [ "$ok" != "1" ] || [ ! -s /tmp/idx.html ]; then
             echo "Failed to prerender index via local worker." >&2
-            tail -80 /tmp/wrangler.log >&2 || true
             exit 1
           fi
           mv /tmp/idx.html dist/client/index.html
           test -f dist/client/icon-512.png || cp public/icon-512.png dist/client/icon-512.png
           test -f dist/client/manifest.webmanifest || cp public/manifest.webmanifest dist/client/manifest.webmanifest
           test -f dist/client/favicon.ico || cp public/favicon.ico dist/client/favicon.ico
-          echo "Prerendered index.html:"
+          echo "Prerendered index.html (first 400 bytes):"
           head -c 400 dist/client/index.html
+
 
 
       - name: Ensure Capacitor Android platform
