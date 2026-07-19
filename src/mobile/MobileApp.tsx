@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { Component, useEffect, useMemo, useState, type ErrorInfo, type FormEvent, type ReactNode } from "react";
 import { lovable } from "@/integrations/lovable";
 import { supabase } from "@/integrations/supabase/client";
 import { RemindersManager } from "@/components/reminders-manager";
@@ -27,22 +27,40 @@ export function MobileApp() {
   );
 }
 
-function MobileErrorBoundary({ children }: { children: ReactNode }) {
-  const [error, setError] = useState<string | null>(null);
+class MobileErrorBoundary extends Component<{ children: ReactNode }, { error: string | null }> {
+  state = { error: null };
 
-  useEffect(() => {
-    const onError = (event: ErrorEvent) => setError(event.message || "App failed to start.");
-    const onRejection = (event: PromiseRejectionEvent) =>
-      setError(event.reason instanceof Error ? event.reason.message : "App failed to start.");
-    window.addEventListener("error", onError);
-    window.addEventListener("unhandledrejection", onRejection);
-    return () => {
-      window.removeEventListener("error", onError);
-      window.removeEventListener("unhandledrejection", onRejection);
-    };
-  }, []);
+  private onError = (event: ErrorEvent) => {
+    this.setState({ error: event.message || "App failed to start." });
+  };
 
-  if (error) {
+  private onRejection = (event: PromiseRejectionEvent) => {
+    this.setState({
+      error: event.reason instanceof Error ? event.reason.message : "App failed to start.",
+    });
+  };
+
+  static getDerivedStateFromError(error: Error) {
+    return { error: error.message || "App failed to start." };
+  }
+
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error("Mobile app render failed", error, info.componentStack);
+  }
+
+  componentDidMount() {
+    window.addEventListener("error", this.onError);
+    window.addEventListener("unhandledrejection", this.onRejection);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("error", this.onError);
+    window.removeEventListener("unhandledrejection", this.onRejection);
+  }
+
+  render() {
+    const { error } = this.state;
+    if (!error) return <>{this.props.children}</>;
     return (
       <div className="min-h-[100dvh] bg-background px-5 py-10 text-foreground">
         <h1 className="text-2xl font-semibold">Daily Planner</h1>
@@ -56,8 +74,6 @@ function MobileErrorBoundary({ children }: { children: ReactNode }) {
       </div>
     );
   }
-
-  return <>{children}</>;
 }
 
 function MobileRuntime() {
