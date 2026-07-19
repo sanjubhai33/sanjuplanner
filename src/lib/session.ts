@@ -23,11 +23,12 @@ function readCachedSession(): Session | null {
 }
 
 export function useSession() {
-  const [session, setSession] = useState<Session | null>(() => readCachedSession());
-  const [loading, setLoading] = useState(() => !readCachedSession());
+  const [initialSession] = useState<Session | null>(() => readCachedSession());
+  const [session, setSession] = useState<Session | null>(initialSession);
+  const [loading, setLoading] = useState(() => !initialSession);
 
   useEffect(() => {
-    let settled = Boolean(readCachedSession());
+    let settled = Boolean(initialSession);
     const finish = (s: Session | null, final = false) => {
       if (final && settled) return;
       settled = true;
