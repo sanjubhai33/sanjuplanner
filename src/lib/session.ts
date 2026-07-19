@@ -2,15 +2,35 @@ import { useEffect, useState } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
+function readCachedSession(): Session | null {
+  if (typeof window === "undefined") return null;
+  try {
+    for (let index = 0; index < window.localStorage.length; index += 1) {
+      const key = window.localStorage.key(index);
+      if (!key?.startsWith("sb-") || !key.endsWith("-auth-token")) continue;
+      const raw = window.localStorage.getItem(key);
+      if (!raw) continue;
+      const parsed = JSON.parse(raw) as Session | { currentSession?: Session | null } | null;
+      if (parsed && "access_token" in parsed && parsed.access_token) return parsed as Session;
+      if (parsed && "currentSession" in parsed && parsed.currentSession?.access_token) {
+        return parsed.currentSession;
+      }
+    }
+  } catch {
+    /* storage can be unavailable on some WebViews; fall through safely */
+  }
+  return null;
+}
+
 export function useSession() {
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [session, setSession] = useState<Session | null>(() => readCachedSession());
+  const [loading, setLoading] = useState(() => !readCachedSession());
 
   useEffect(() => {
-    let done = false;
-    const finish = (s: Session | null) => {
-      if (done) return;
-      done = true;
+    let settled = Boolean(readCachedSession());
+    const finish = (s: Session | null, final = false) => {
+      if (final && settled) return;
+      settled = true;
       setSession(s);
       setLoading(false);
     };
@@ -20,7 +40,7 @@ export function useSession() {
       const listener = supabase.auth.onAuthStateChange((_e, s) => {
         setSession(s);
         setLoading(false);
-        done = true;
+        settled = true;
       });
       sub = listener.data;
     } catch (e) {
@@ -33,15 +53,15 @@ export function useSession() {
         .then(({ data }) => finish(data.session))
         .catch((e) => {
           console.error("getSession failed", e);
-          finish(null);
+          finish(readCachedSession(), true);
         });
     } catch (e) {
       console.error("getSession threw", e);
-      finish(null);
+      finish(readCachedSession(), true);
     }
 
     // Hard timeout so APK never gets stuck on Loading if storage/network hangs.
-    const t = setTimeout(() => finish(null), 2500);
+    const t = setTimeout(() => finish(readCachedSession(), true), 2500);
 
     return () => {
       clearTimeout(t);
