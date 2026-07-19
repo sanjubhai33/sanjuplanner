@@ -8,16 +8,19 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
   tanstackStart: {
-    // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
-    // nitro/vite builds from this
     server: { entry: "server" },
-    // Generate a real static app shell for Capacitor. This shell includes the
-    // built JavaScript/CSS assets, so the APK can start the planner offline.
     spa: {
       enabled: true,
       prerender: {
         outputPath: "/_shell",
       },
+    },
+  },
+  nitro: {
+    prerender: {
+      crawlLinks: false,
+      failOnError: false,
+      routes: ["/_shell"],
     },
   },
 });
