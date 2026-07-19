@@ -1,8 +1,7 @@
 import { QueryClient, QueryClientProvider, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { lovable } from "@/integrations/lovable";
 import { supabase } from "@/integrations/supabase/client";
-import { AddButton } from "@/components/add-button";
 import { RemindersManager } from "@/components/reminders-manager";
 import { SyncManager } from "@/components/sync-manager";
 import { useSession, useDisplayName } from "@/lib/session";
@@ -28,7 +27,7 @@ export function MobileApp() {
   );
 }
 
-function MobileErrorBoundary({ children }: { children: React.ReactNode }) {
+function MobileErrorBoundary({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -351,7 +350,14 @@ function CalendarScreen({ onEdit }: { onEdit: (task: Task) => void }) {
       />
       <TaskList className="mt-6" tasks={dayTasks} onEdit={onEdit} />
       {dayTasks.length === 0 && <EmptyBox text="No tasks on this day." />}
-      <AddButton date={selected} />
+      <button
+        type="button"
+        onClick={() => onEdit(newTask({ date: selected }))}
+        className="fixed bottom-24 right-5 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 active:scale-95"
+        aria-label="Add task"
+      >
+        +
+      </button>
     </section>
   );
 }
