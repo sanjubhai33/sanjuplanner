@@ -67,23 +67,54 @@ jobs:
           fi
           echo "Using client dir: $CLIENT_DIR"
 
-          # TanStack Start SPA mode emits _shell.html with the real module
-          # scripts. Copy it to index.html for Capacitor instead of writing a
-          # fake "Loading..." file with no app bundle.
+          # Prefer TanStack's generated SPA shell when present. If it is not
+          # emitted, create a real offline Capacitor entry that loads the
+          # generated client JavaScript bundle directly.
           SHELL_FILE=""
           for f in "$CLIENT_DIR/_shell.html" "$CLIENT_DIR/_shell/index.html" dist/client/_shell.html .output/public/_shell.html; do
             if [ -f "$f" ]; then SHELL_FILE="$f"; break; fi
           done
 
-          if [ -z "$SHELL_FILE" ]; then
-            echo "TanStack SPA shell (_shell.html) was not generated." >&2
-            echo "Available HTML files:" >&2
-            find dist .output -maxdepth 4 -type f -name '*.html' 2>/dev/null | sort | sed -n '1,80p' >&2
-            exit 1
-          fi
+          if [ -n "$SHELL_FILE" ]; then
+            echo "Using SPA shell: $SHELL_FILE"
+            cp "$SHELL_FILE" "$CLIENT_DIR/index.html"
+          else
+            echo "SPA shell not generated; creating Capacitor offline index.html from client bundle."
+            MAIN_JS="$(find "$CLIENT_DIR/assets" -maxdepth 1 -type f -name 'index-*.js' | sort | head -n 1)"
+            if [ -z "$MAIN_JS" ]; then
+              echo "Main client bundle assets/index-*.js was not found." >&2
+              find "$CLIENT_DIR" -maxdepth 3 -type f | sort | sed -n '1,120p' >&2
+              exit 1
+            fi
 
-          echo "Using SPA shell: $SHELL_FILE"
-          cp "$SHELL_FILE" "$CLIENT_DIR/index.html"
+            CSS_LINKS=""
+            while IFS= read -r css; do
+              rel="${css#$CLIENT_DIR/}"
+              CSS_LINKS="$CSS_LINKS<link rel=\"stylesheet\" href=\"$rel\">\n"
+            done < <(find "$CLIENT_DIR/assets" -maxdepth 1 -type f -name '*.css' | sort)
+
+            MAIN_REL="${MAIN_JS#$CLIENT_DIR/}"
+            cat > "$CLIENT_DIR/index.html" <<HTML
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#d97757">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Today — Daily Planner</title>
+  <meta name="description" content="Your timeline for today. Offline daily planner.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon-512.png" type="image/png">
+  <link rel="apple-touch-icon" href="icon-512.png">
+  $CSS_LINKS<script type="module" src="$MAIN_REL"></script>
+</head>
+<body>
+  <div class="min-h-screen flex items-center justify-center bg-background text-muted-foreground text-sm">Loading…</div>
+</body>
+</html>
+HTML
+          fi
 
           # Ensure PWA assets exist in client dir
           test -f "$CLIENT_DIR/icon-512.png" || cp public/icon-512.png "$CLIENT_DIR/icon-512.png" 2>/dev/null || true
