@@ -51,6 +51,12 @@ export default {
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);
     } catch (error) {
+      // TanStack/h3 can throw Response objects for routing control flow during
+      // prerendering (shell/redirect/not-found). Returning them keeps the build
+      // from turning a valid framework response into a fatal 500.
+      if (error instanceof Response) {
+        return await normalizeCatastrophicSsrResponse(error);
+      }
       console.error(error);
       return new Response(renderErrorPage(), {
         status: 500,
