@@ -22,5 +22,5 @@ export default defineConfig({
       failOnError: false,
       routes: ["/_shell"],
     },
-  },
+  } as any,
 });
