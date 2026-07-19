@@ -16,11 +16,4 @@ export default defineConfig({
       },
     },
   },
-  nitro: {
-    prerender: {
-      crawlLinks: false,
-      failOnError: false,
-      routes: ["/_shell"],
-    },
-  } as any,
 });

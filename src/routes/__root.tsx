@@ -6,6 +6,7 @@ import {
   useRouter,
   HeadContent,
   Scripts,
+  ClientOnly,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
@@ -144,8 +145,18 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AppLayout />
+      <ClientOnly fallback={<LoadingShell />}>
+        {() => <AppLayout />}
+      </ClientOnly>
     </QueryClientProvider>
+  );
+}
+
+function LoadingShell() {
+  return (
+    <div className="min-h-[100dvh] flex items-center justify-center bg-background text-muted-foreground text-sm">
+      Loading…
+    </div>
   );
 }
 

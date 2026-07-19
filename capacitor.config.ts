@@ -8,7 +8,8 @@ const config: CapacitorConfig = {
   // The APK loads the bundled web files so the planner opens without internet.
   // Online-only features still call the hosted backend when a connection exists.
   android: {
-    allowMixedContent: false,
+    allowMixedContent: true,
+    webContentsDebuggingEnabled: true,
   },
   ios: {
     contentInset: "always",

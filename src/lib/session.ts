@@ -7,14 +7,46 @@ export function useSession() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+    let done = false;
+    const finish = (s: Session | null) => {
+      if (done) return;
+      done = true;
       setSession(s);
-    });
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
       setLoading(false);
-    });
-    return () => sub.subscription.unsubscribe();
+    };
+
+    let sub: { subscription: { unsubscribe: () => void } } | null = null;
+    try {
+      const listener = supabase.auth.onAuthStateChange((_e, s) => {
+        setSession(s);
+        setLoading(false);
+        done = true;
+      });
+      sub = listener.data;
+    } catch (e) {
+      console.error("auth listener failed", e);
+    }
+
+    try {
+      supabase.auth
+        .getSession()
+        .then(({ data }) => finish(data.session))
+        .catch((e) => {
+          console.error("getSession failed", e);
+          finish(null);
+        });
+    } catch (e) {
+      console.error("getSession threw", e);
+      finish(null);
+    }
+
+    // Hard timeout so APK never gets stuck on Loading if storage/network hangs.
+    const t = setTimeout(() => finish(null), 2500);
+
+    return () => {
+      clearTimeout(t);
+      sub?.subscription.unsubscribe();
+    };
   }, []);
 
   return { session, user: session?.user ?? null, loading };
@@ -42,6 +74,9 @@ export function useDisplayName(user: User | null) {
       .then(({ data }) => {
         if (cancelled) return;
         setName(data?.display_name || fallback);
+      })
+      .catch(() => {
+        /* offline; keep fallback */
       });
     return () => {
       cancelled = true;
