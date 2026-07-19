@@ -265,10 +265,10 @@ function MobileShell({ user }: { user: ReturnType<typeof useSession>["user"] }) 
         {tab === "journal" && <JournalScreen />}
       </main>
 
-      {tab !== "journal" && (
+      {tab !== "journal" && tab !== "calendar" && (
         <button
           type="button"
-          onClick={() => setEditing(newTask(tab === "calendar" ? undefined : {}))}
+          onClick={() => setEditing(newTask({ date: taskTodayISO() }))}
           className="fixed bottom-24 right-5 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 active:scale-95"
           aria-label="Add task"
         >
@@ -349,7 +349,6 @@ function CalendarScreen({ onEdit }: { onEdit: (task: Task) => void }) {
         className="mt-5 h-12 w-full rounded-lg border border-border bg-card px-3 text-sm"
       />
       <TaskList className="mt-6" tasks={dayTasks} onEdit={onEdit} />
-      {dayTasks.length === 0 && <EmptyBox text="No tasks on this day." />}
       <button
         type="button"
         onClick={() => onEdit(newTask({ date: selected }))}
