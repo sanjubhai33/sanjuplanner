@@ -49,12 +49,13 @@ jobs:
       - name: Build web app
         run: npm run build
 
-      - name: Prerender offline index.html
+      - name: Prepare offline app shell
         env:
           CI: "true"
         run: |
-          set -e
-          # Locate build output (nitro may emit to dist/ or .output/)
+          set -euo pipefail
+
+          # Locate build output (TanStack/Nitro may emit to dist/ or .output/)
           CLIENT_DIR=""
           for d in dist/client .output/public; do
             if [ -d "$d" ]; then CLIENT_DIR="$d"; break; fi
@@ -66,38 +67,23 @@ jobs:
           fi
           echo "Using client dir: $CLIENT_DIR"
 
-          # Run vite preview which serves the built SSR app
-          nohup npx --yes vite preview --port 8799 --host 127.0.0.1 >/tmp/preview.log 2>&1 &
-          PPID_=$!
-          echo "Waiting for preview server (pid=$PPID_)..."
-          ok=0
-          for i in $(seq 1 60); do
-            if curl -sf http://127.0.0.1:8799/ -o /tmp/idx.html; then ok=1; break; fi
-            if ! kill -0 $PPID_ 2>/dev/null; then
-              echo "vite preview exited early." >&2
-              break
-            fi
-            sleep 2
+          # TanStack Start SPA mode emits _shell.html with the real module
+          # scripts. Copy it to index.html for Capacitor instead of writing a
+          # fake "Loading..." file with no app bundle.
+          SHELL_FILE=""
+          for f in "$CLIENT_DIR/_shell.html" "$CLIENT_DIR/_shell/index.html" dist/client/_shell.html .output/public/_shell.html; do
+            if [ -f "$f" ]; then SHELL_FILE="$f"; break; fi
           done
-          echo "=== preview.log (tail) ==="
-          tail -120 /tmp/preview.log || true
-          kill $PPID_ 2>/dev/null || true
-          pkill -f "vite preview" 2>/dev/null || true
 
-          if [ "$ok" != "1" ] || [ ! -s /tmp/idx.html ]; then
-            echo "Failed to prerender index; writing minimal fallback." >&2
-            # Fallback: use the built index if present, else a minimal shell
-            if [ -f "$CLIENT_DIR/index.html" ]; then
-              echo "Using existing $CLIENT_DIR/index.html"
-            else
-              cat > /tmp/idx.html <<'HTML'
-          <!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Daily Planner</title></head><body><div id="root">Loading...</div><script>location.reload()</script></body></html>
-          HTML
-              cp /tmp/idx.html "$CLIENT_DIR/index.html"
-            fi
-          else
-            cp /tmp/idx.html "$CLIENT_DIR/index.html"
+          if [ -z "$SHELL_FILE" ]; then
+            echo "TanStack SPA shell (_shell.html) was not generated." >&2
+            echo "Available HTML files:" >&2
+            find dist .output -maxdepth 4 -type f -name '*.html' 2>/dev/null | sort | sed -n '1,80p' >&2
+            exit 1
           fi
+
+          echo "Using SPA shell: $SHELL_FILE"
+          cp "$SHELL_FILE" "$CLIENT_DIR/index.html"
 
           # Ensure PWA assets exist in client dir
           test -f "$CLIENT_DIR/icon-512.png" || cp public/icon-512.png "$CLIENT_DIR/icon-512.png" 2>/dev/null || true
@@ -110,7 +96,13 @@ jobs:
             cp -r "$CLIENT_DIR"/. dist/client/
           fi
 
-          echo "Prerendered index.html (first 400 bytes):"
+          if ! grep -Eq '<script[^>]+src=' dist/client/index.html; then
+            echo "dist/client/index.html has no JavaScript bundle script; APK would stay on Loading." >&2
+            head -c 1000 dist/client/index.html >&2
+            exit 1
+          fi
+
+          echo "Offline index.html prepared (first 400 bytes):"
           head -c 400 dist/client/index.html
           echo
 
