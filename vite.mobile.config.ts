@@ -12,6 +12,9 @@ export default defineConfig({
   envDir: path.resolve(__dirname),
   publicDir: path.resolve(__dirname, "public"),
   base: "./",
+  define: {
+    "process.env": {},
+  },
   plugins: [react(), tailwindcss(), tsConfigPaths()],
   resolve: {
     alias: {
