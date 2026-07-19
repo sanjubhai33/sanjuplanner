@@ -12,12 +12,16 @@ export function SyncManager() {
     let mounted = true;
 
     const runSync = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (!data.session) return;
-      await Promise.all([syncTasks(), syncJournal()]);
-      if (!mounted) return;
-      qc.invalidateQueries({ queryKey: ["tasks"] });
-      qc.invalidateQueries({ queryKey: ["journal"] });
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (!data.session) return;
+        await Promise.all([syncTasks(), syncJournal()]);
+        if (!mounted) return;
+        qc.invalidateQueries({ queryKey: ["tasks"] });
+        qc.invalidateQueries({ queryKey: ["journal"] });
+      } catch (error) {
+        console.info("Sync skipped until internet/backend is reachable.", error);
+      }
     };
 
     // Initial sync

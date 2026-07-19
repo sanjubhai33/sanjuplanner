@@ -3,7 +3,7 @@ import type { CapacitorConfig } from "@capacitor/cli";
 const config: CapacitorConfig = {
   appId: "com.avinash.dailyplanner",
   appName: "Daily Planner",
-  webDir: "dist/client",
+  webDir: "dist/mobile",
   bundledWebRuntime: false,
   // The APK loads the bundled web files so the planner opens without internet.
   // Online-only features still call the hosted backend when a connection exists.
