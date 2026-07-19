@@ -66,18 +66,19 @@ export function useDisplayName(user: User | null) {
       user.email?.split("@")[0] ||
       "";
     setName(fallback);
-    supabase
-      .from("profiles")
-      .select("display_name")
-      .eq("id", user.id)
-      .maybeSingle()
-      .then(({ data }) => {
+    (async () => {
+      try {
+        const { data } = await supabase
+          .from("profiles")
+          .select("display_name")
+          .eq("id", user.id)
+          .maybeSingle();
         if (cancelled) return;
         setName(data?.display_name || fallback);
-      })
-      .catch(() => {
+      } catch {
         /* offline; keep fallback */
-      });
+      }
+    })();
     return () => {
       cancelled = true;
     };

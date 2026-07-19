@@ -146,7 +146,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <ClientOnly fallback={<LoadingShell />}>
-        {() => <AppLayout />}
+        <AppLayout />
       </ClientOnly>
     </QueryClientProvider>
   );
