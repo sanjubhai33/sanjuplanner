@@ -95,25 +95,25 @@ jobs:
 
             MAIN_REL="${MAIN_JS#$CLIENT_DIR/}"
             cat > "$CLIENT_DIR/index.html" <<HTML
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-  <meta name="theme-color" content="#d97757">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>Today — Daily Planner</title>
-  <meta name="description" content="Your timeline for today. Offline daily planner.">
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="icon" href="icon-512.png" type="image/png">
-  <link rel="apple-touch-icon" href="icon-512.png">
-  $CSS_LINKS<script type="module" src="$MAIN_REL"></script>
-</head>
-<body>
-  <div class="min-h-screen flex items-center justify-center bg-background text-muted-foreground text-sm">Loading…</div>
-</body>
-</html>
-HTML
+          <!doctype html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+            <meta name="theme-color" content="#d97757">
+            <meta name="apple-mobile-web-app-capable" content="yes">
+            <title>Today — Daily Planner</title>
+            <meta name="description" content="Your timeline for today. Offline daily planner.">
+            <link rel="manifest" href="manifest.webmanifest">
+            <link rel="icon" href="icon-512.png" type="image/png">
+            <link rel="apple-touch-icon" href="icon-512.png">
+            $CSS_LINKS<script type="module" src="$MAIN_REL"></script>
+          </head>
+          <body>
+            <div class="min-h-screen flex items-center justify-center bg-background text-muted-foreground text-sm">Loading…</div>
+          </body>
+          </html>
+          HTML
           fi
 
           # Ensure PWA assets exist in client dir
