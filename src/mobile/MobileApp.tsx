@@ -28,7 +28,7 @@ export function MobileApp() {
 }
 
 class MobileErrorBoundary extends Component<{ children: ReactNode }, { error: string | null }> {
-  state = { error: null };
+  state: { error: string | null } = { error: null };
 
   private onError = (event: ErrorEvent) => {
     this.setState({ error: event.message || "App failed to start." });
