@@ -9,11 +9,10 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 export default defineConfig({
   tanstackStart: {
     server: { entry: "server" },
-    spa: {
-      enabled: true,
-      prerender: {
-        outputPath: "/_shell",
-      },
-    },
+    // The native APK is prepared from bundled client files in GitHub Actions.
+    // Disabling build-time SPA prerender avoids the preview-server crawl that
+    // was failing before the Android build could start.
+    spa: { enabled: false },
+    prerender: { enabled: false },
   },
 });
