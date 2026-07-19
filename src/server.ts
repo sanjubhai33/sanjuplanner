@@ -44,6 +44,17 @@ function isH3SwallowedErrorBody(body: string): boolean {
   }
 }
 
+function isResponseLike(error: unknown): error is Response {
+  return (
+    error instanceof Response ||
+    (error != null &&
+      typeof error === "object" &&
+      "status" in error &&
+      "headers" in error &&
+      "body" in error)
+  );
+}
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
@@ -54,7 +65,7 @@ export default {
       // TanStack/h3 can throw Response objects for routing control flow during
       // prerendering (shell/redirect/not-found). Returning them keeps the build
       // from turning a valid framework response into a fatal 500.
-      if (error instanceof Response) {
+      if (isResponseLike(error)) {
         return await normalizeCatastrophicSsrResponse(error);
       }
       console.error(error);
