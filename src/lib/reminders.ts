@@ -20,6 +20,7 @@ const TASK_LEADS: { minutes: number; offset: number; label: string }[] = [
   { minutes: 30, offset: 1, label: "in 30 minutes" },
   { minutes: 15, offset: 2, label: "in 15 minutes" },
   { minutes: 5, offset: 3, label: "in 5 minutes" },
+  { minutes: 0, offset: 4, label: "starting now" },
 ];
 
 function isNative() {
