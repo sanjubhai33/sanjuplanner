@@ -365,6 +365,8 @@ function CalendarScreen({ onEdit }: { onEdit: (task: Task) => void }) {
         className="mt-5 h-12 w-full rounded-lg border border-border bg-card px-3 text-sm"
       />
       <TaskList className="mt-6" tasks={dayTasks} onEdit={onEdit} />
+      <DayRecord date={selected} tasks={dayTasks} className="mt-4 mb-28" />
+
       <button
         type="button"
         onClick={() => onEdit(newTask({ date: selected }))}
