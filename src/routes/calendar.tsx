@@ -4,6 +4,8 @@ import { useTasks } from "@/lib/use-tasks";
 import { todayISO } from "@/lib/tasks";
 import { TaskRow } from "@/components/task-row";
 import { AddButton } from "@/components/add-button";
+import { DayRecord } from "@/components/day-record";
+
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/calendar")({
@@ -107,7 +109,9 @@ function CalendarPage() {
             {dayTasks.map((t) => <TaskRow key={t.id} task={t} />)}
           </ul>
         )}
+        <DayRecord date={selected} tasks={dayTasks} className="mt-4 mb-28" />
       </section>
+
 
       <AddButton date={selected} />
     </div>

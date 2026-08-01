@@ -4,6 +4,8 @@ import { lovable } from "@/integrations/lovable";
 import { supabase } from "@/integrations/supabase/client";
 import { RemindersManager } from "@/components/reminders-manager";
 import { SyncManager } from "@/components/sync-manager";
+import { DayRecord } from "@/components/day-record";
+
 import { useSession, useDisplayName } from "@/lib/session";
 import { useTasks, useToggleTask, useUpsertTask, useDeleteTask } from "@/lib/use-tasks";
 import { newTask, todayISO as taskTodayISO, type Priority, type Task } from "@/lib/tasks";
@@ -365,6 +367,8 @@ function CalendarScreen({ onEdit }: { onEdit: (task: Task) => void }) {
         className="mt-5 h-12 w-full rounded-lg border border-border bg-card px-3 text-sm"
       />
       <TaskList className="mt-6" tasks={dayTasks} onEdit={onEdit} />
+      <DayRecord date={selected} tasks={dayTasks} className="mt-4 mb-28" />
+
       <button
         type="button"
         onClick={() => onEdit(newTask({ date: selected }))}
