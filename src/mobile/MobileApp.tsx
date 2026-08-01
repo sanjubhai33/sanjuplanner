@@ -4,6 +4,8 @@ import { lovable } from "@/integrations/lovable";
 import { supabase } from "@/integrations/supabase/client";
 import { RemindersManager } from "@/components/reminders-manager";
 import { SyncManager } from "@/components/sync-manager";
+import { DayRecord } from "@/components/day-record";
+
 import { useSession, useDisplayName } from "@/lib/session";
 import { useTasks, useToggleTask, useUpsertTask, useDeleteTask } from "@/lib/use-tasks";
 import { newTask, todayISO as taskTodayISO, type Priority, type Task } from "@/lib/tasks";
