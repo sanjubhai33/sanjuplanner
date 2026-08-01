@@ -107,7 +107,9 @@ function CalendarPage() {
             {dayTasks.map((t) => <TaskRow key={t.id} task={t} />)}
           </ul>
         )}
+        <DayRecord date={selected} tasks={dayTasks} className="mt-4 mb-28" />
       </section>
+
 
       <AddButton date={selected} />
     </div>
