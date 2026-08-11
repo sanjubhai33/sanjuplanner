@@ -267,6 +267,7 @@ function MobileShell({ user }: { user: ReturnType<typeof useSession>["user"] }) 
     <div className="min-h-[100dvh] bg-background text-foreground">
       <RemindersManager />
       <SyncManager />
+      <WidgetSync />
       <header className="flex items-center justify-between px-5 pb-2 pt-5">
         <div>
           <p className="text-xs text-muted-foreground">Hello</p>
