@@ -4,4 +4,5 @@
     <string name="title_activity_main">Daily Planner</string>
     <string name="package_name">com.avinash.dailyplanner</string>
     <string name="custom_url_scheme">com.avinash.dailyplanner</string>
+    <string name="widget_title">TODAY</string>
 </resources>

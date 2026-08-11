@@ -4,6 +4,7 @@ import { lovable } from "@/integrations/lovable";
 import { supabase } from "@/integrations/supabase/client";
 import { RemindersManager } from "@/components/reminders-manager";
 import { SyncManager } from "@/components/sync-manager";
+import { WidgetSync } from "@/components/widget-sync";
 import { DayRecord } from "@/components/day-record";
 
 import { useSession, useDisplayName } from "@/lib/session";
@@ -266,6 +267,7 @@ function MobileShell({ user }: { user: ReturnType<typeof useSession>["user"] }) 
     <div className="min-h-[100dvh] bg-background text-foreground">
       <RemindersManager />
       <SyncManager />
+      <WidgetSync />
       <header className="flex items-center justify-between px-5 pb-2 pt-5">
         <div>
           <p className="text-xs text-muted-foreground">Hello</p>
