@@ -4,6 +4,7 @@ import { lovable } from "@/integrations/lovable";
 import { supabase } from "@/integrations/supabase/client";
 import { RemindersManager } from "@/components/reminders-manager";
 import { SyncManager } from "@/components/sync-manager";
+import { WidgetSync } from "@/components/widget-sync";
 import { DayRecord } from "@/components/day-record";
 
 import { useSession, useDisplayName } from "@/lib/session";
