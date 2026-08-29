@@ -12,6 +12,9 @@ export type Task = {
   duration: number;
   priority: Priority;
   completed: boolean;
+  googleEventId?: string | null;
+  googleCalendarId?: string | null;
+  googleEtag?: string | null;
   createdAt: number;
   updatedAt: number;
 };
@@ -41,6 +44,9 @@ type Row = {
   duration: number;
   priority: string;
   completed: boolean;
+  google_event_id: string | null;
+  google_calendar_id: string | null;
+  google_etag: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -55,6 +61,9 @@ function rowToTask(r: Row): Task {
     duration: r.duration,
     priority: (r.priority as Priority) ?? "medium",
     completed: r.completed,
+    googleEventId: r.google_event_id,
+    googleCalendarId: r.google_calendar_id,
+    googleEtag: r.google_etag,
     createdAt: new Date(r.created_at).getTime(),
     updatedAt: new Date(r.updated_at).getTime(),
   };
@@ -71,6 +80,9 @@ function taskToRow(t: Task, userId: string) {
     duration: t.duration,
     priority: t.priority,
     completed: t.completed,
+    google_event_id: t.googleEventId ?? null,
+    google_calendar_id: t.googleCalendarId ?? null,
+    google_etag: t.googleEtag ?? null,
     updated_at: new Date(t.updatedAt).toISOString(),
   };
 }
