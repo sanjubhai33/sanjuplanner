@@ -166,7 +166,8 @@ export async function syncGoogleCalendarForUser(
     });
   }
 
-  const upserts: Record<string, unknown>[] = [];
+type TaskInsert = Database["public"]["Tables"]["tasks"]["Insert"];
+  const upserts: TaskInsert[] = [];
   const deletes: string[] = [];
   let synced = 0;
 
