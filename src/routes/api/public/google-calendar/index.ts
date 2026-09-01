@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/api/public/google-calendar")({
+export const Route = createFileRoute("/api/public/google-calendar/")({
   server: {
     handlers: {
       OPTIONS: async () => (await import("@/server/google-api.server")).json({ ok: true }),
