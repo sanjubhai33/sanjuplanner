@@ -4,6 +4,7 @@ import { useTasks } from "@/lib/use-tasks";
 import { todayISO } from "@/lib/tasks";
 import { TaskRow } from "@/components/task-row";
 import { AddButton } from "@/components/add-button";
+import { GoogleConnectCard } from "@/components/google-connect-card";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -51,7 +52,9 @@ function TodayPage() {
             ? "Nothing planned yet. Tap + to add your first task."
             : `${done} of ${todays.length} complete`}
         </p>
-      </header>
+</header>
+
+      <GoogleConnectCard className="mb-6" />
 
       {todays.length > 0 ? (
         <Timeline tasks={todays} />

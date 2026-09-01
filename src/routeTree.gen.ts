@@ -15,7 +15,13 @@ import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TaskNewRouteImport } from './routes/task.new'
 import { Route as TaskIdRouteImport } from './routes/task.$id'
+import { Route as OauthGoogleReturnRouteImport } from './routes/oauth/google/return'
 import { Route as ApiPublicDailyReportRouteImport } from './routes/api/public/daily-report'
+import { Route as ApiPublicGoogleCalendarIndexRouteImport } from './routes/api/public/google-calendar/index'
+import { Route as ApiPublicGoogleCalendarSyncRouteImport } from './routes/api/public/google-calendar/sync'
+import { Route as ApiPublicGoogleCalendarStartRouteImport } from './routes/api/public/google-calendar/start'
+import { Route as ApiPublicGoogleCalendarDisconnectRouteImport } from './routes/api/public/google-calendar/disconnect'
+import { Route as ApiPublicGoogleCalendarCompleteRouteImport } from './routes/api/public/google-calendar/complete'
 
 const UpcomingRoute = UpcomingRouteImport.update({
   id: '/upcoming',
@@ -47,11 +53,46 @@ const TaskIdRoute = TaskIdRouteImport.update({
   path: '/task/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OauthGoogleReturnRoute = OauthGoogleReturnRouteImport.update({
+  id: '/oauth/google/return',
+  path: '/oauth/google/return',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicDailyReportRoute = ApiPublicDailyReportRouteImport.update({
   id: '/api/public/daily-report',
   path: '/api/public/daily-report',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicGoogleCalendarIndexRoute =
+  ApiPublicGoogleCalendarIndexRouteImport.update({
+    id: '/api/public/google-calendar/',
+    path: '/api/public/google-calendar/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicGoogleCalendarSyncRoute =
+  ApiPublicGoogleCalendarSyncRouteImport.update({
+    id: '/api/public/google-calendar/sync',
+    path: '/api/public/google-calendar/sync',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicGoogleCalendarStartRoute =
+  ApiPublicGoogleCalendarStartRouteImport.update({
+    id: '/api/public/google-calendar/start',
+    path: '/api/public/google-calendar/start',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicGoogleCalendarDisconnectRoute =
+  ApiPublicGoogleCalendarDisconnectRouteImport.update({
+    id: '/api/public/google-calendar/disconnect',
+    path: '/api/public/google-calendar/disconnect',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicGoogleCalendarCompleteRoute =
+  ApiPublicGoogleCalendarCompleteRouteImport.update({
+    id: '/api/public/google-calendar/complete',
+    path: '/api/public/google-calendar/complete',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -61,6 +102,12 @@ export interface FileRoutesByFullPath {
   '/task/$id': typeof TaskIdRoute
   '/task/new': typeof TaskNewRoute
   '/api/public/daily-report': typeof ApiPublicDailyReportRoute
+  '/oauth/google/return': typeof OauthGoogleReturnRoute
+  '/api/public/google-calendar/complete': typeof ApiPublicGoogleCalendarCompleteRoute
+  '/api/public/google-calendar/disconnect': typeof ApiPublicGoogleCalendarDisconnectRoute
+  '/api/public/google-calendar/start': typeof ApiPublicGoogleCalendarStartRoute
+  '/api/public/google-calendar/sync': typeof ApiPublicGoogleCalendarSyncRoute
+  '/api/public/google-calendar/': typeof ApiPublicGoogleCalendarIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +117,12 @@ export interface FileRoutesByTo {
   '/task/$id': typeof TaskIdRoute
   '/task/new': typeof TaskNewRoute
   '/api/public/daily-report': typeof ApiPublicDailyReportRoute
+  '/oauth/google/return': typeof OauthGoogleReturnRoute
+  '/api/public/google-calendar/complete': typeof ApiPublicGoogleCalendarCompleteRoute
+  '/api/public/google-calendar/disconnect': typeof ApiPublicGoogleCalendarDisconnectRoute
+  '/api/public/google-calendar/start': typeof ApiPublicGoogleCalendarStartRoute
+  '/api/public/google-calendar/sync': typeof ApiPublicGoogleCalendarSyncRoute
+  '/api/public/google-calendar': typeof ApiPublicGoogleCalendarIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,6 +133,12 @@ export interface FileRoutesById {
   '/task/$id': typeof TaskIdRoute
   '/task/new': typeof TaskNewRoute
   '/api/public/daily-report': typeof ApiPublicDailyReportRoute
+  '/oauth/google/return': typeof OauthGoogleReturnRoute
+  '/api/public/google-calendar/complete': typeof ApiPublicGoogleCalendarCompleteRoute
+  '/api/public/google-calendar/disconnect': typeof ApiPublicGoogleCalendarDisconnectRoute
+  '/api/public/google-calendar/start': typeof ApiPublicGoogleCalendarStartRoute
+  '/api/public/google-calendar/sync': typeof ApiPublicGoogleCalendarSyncRoute
+  '/api/public/google-calendar/': typeof ApiPublicGoogleCalendarIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +150,12 @@ export interface FileRouteTypes {
     | '/task/$id'
     | '/task/new'
     | '/api/public/daily-report'
+    | '/oauth/google/return'
+    | '/api/public/google-calendar/complete'
+    | '/api/public/google-calendar/disconnect'
+    | '/api/public/google-calendar/start'
+    | '/api/public/google-calendar/sync'
+    | '/api/public/google-calendar/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +165,12 @@ export interface FileRouteTypes {
     | '/task/$id'
     | '/task/new'
     | '/api/public/daily-report'
+    | '/oauth/google/return'
+    | '/api/public/google-calendar/complete'
+    | '/api/public/google-calendar/disconnect'
+    | '/api/public/google-calendar/start'
+    | '/api/public/google-calendar/sync'
+    | '/api/public/google-calendar'
   id:
     | '__root__'
     | '/'
@@ -109,6 +180,12 @@ export interface FileRouteTypes {
     | '/task/$id'
     | '/task/new'
     | '/api/public/daily-report'
+    | '/oauth/google/return'
+    | '/api/public/google-calendar/complete'
+    | '/api/public/google-calendar/disconnect'
+    | '/api/public/google-calendar/start'
+    | '/api/public/google-calendar/sync'
+    | '/api/public/google-calendar/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,6 +196,12 @@ export interface RootRouteChildren {
   TaskIdRoute: typeof TaskIdRoute
   TaskNewRoute: typeof TaskNewRoute
   ApiPublicDailyReportRoute: typeof ApiPublicDailyReportRoute
+  OauthGoogleReturnRoute: typeof OauthGoogleReturnRoute
+  ApiPublicGoogleCalendarCompleteRoute: typeof ApiPublicGoogleCalendarCompleteRoute
+  ApiPublicGoogleCalendarDisconnectRoute: typeof ApiPublicGoogleCalendarDisconnectRoute
+  ApiPublicGoogleCalendarStartRoute: typeof ApiPublicGoogleCalendarStartRoute
+  ApiPublicGoogleCalendarSyncRoute: typeof ApiPublicGoogleCalendarSyncRoute
+  ApiPublicGoogleCalendarIndexRoute: typeof ApiPublicGoogleCalendarIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -165,11 +248,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TaskIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/oauth/google/return': {
+      id: '/oauth/google/return'
+      path: '/oauth/google/return'
+      fullPath: '/oauth/google/return'
+      preLoaderRoute: typeof OauthGoogleReturnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/daily-report': {
       id: '/api/public/daily-report'
       path: '/api/public/daily-report'
       fullPath: '/api/public/daily-report'
       preLoaderRoute: typeof ApiPublicDailyReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/google-calendar/': {
+      id: '/api/public/google-calendar/'
+      path: '/api/public/google-calendar'
+      fullPath: '/api/public/google-calendar/'
+      preLoaderRoute: typeof ApiPublicGoogleCalendarIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/google-calendar/sync': {
+      id: '/api/public/google-calendar/sync'
+      path: '/api/public/google-calendar/sync'
+      fullPath: '/api/public/google-calendar/sync'
+      preLoaderRoute: typeof ApiPublicGoogleCalendarSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/google-calendar/start': {
+      id: '/api/public/google-calendar/start'
+      path: '/api/public/google-calendar/start'
+      fullPath: '/api/public/google-calendar/start'
+      preLoaderRoute: typeof ApiPublicGoogleCalendarStartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/google-calendar/disconnect': {
+      id: '/api/public/google-calendar/disconnect'
+      path: '/api/public/google-calendar/disconnect'
+      fullPath: '/api/public/google-calendar/disconnect'
+      preLoaderRoute: typeof ApiPublicGoogleCalendarDisconnectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/google-calendar/complete': {
+      id: '/api/public/google-calendar/complete'
+      path: '/api/public/google-calendar/complete'
+      fullPath: '/api/public/google-calendar/complete'
+      preLoaderRoute: typeof ApiPublicGoogleCalendarCompleteRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -183,6 +308,13 @@ const rootRouteChildren: RootRouteChildren = {
   TaskIdRoute: TaskIdRoute,
   TaskNewRoute: TaskNewRoute,
   ApiPublicDailyReportRoute: ApiPublicDailyReportRoute,
+  OauthGoogleReturnRoute: OauthGoogleReturnRoute,
+  ApiPublicGoogleCalendarCompleteRoute: ApiPublicGoogleCalendarCompleteRoute,
+  ApiPublicGoogleCalendarDisconnectRoute:
+    ApiPublicGoogleCalendarDisconnectRoute,
+  ApiPublicGoogleCalendarStartRoute: ApiPublicGoogleCalendarStartRoute,
+  ApiPublicGoogleCalendarSyncRoute: ApiPublicGoogleCalendarSyncRoute,
+  ApiPublicGoogleCalendarIndexRoute: ApiPublicGoogleCalendarIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -6,6 +6,8 @@ import { RemindersManager } from "@/components/reminders-manager";
 import { SyncManager } from "@/components/sync-manager";
 import { WidgetSync } from "@/components/widget-sync";
 import { DayRecord } from "@/components/day-record";
+import { GoogleConnectCard } from "@/components/google-connect-card";
+import { completeGoogleConnect, syncGoogleCalendarNow } from "@/lib/google-calendar";
 
 import { useSession, useDisplayName } from "@/lib/session";
 import { useTasks, useToggleTask, useUpsertTask, useDeleteTask } from "@/lib/use-tasks";
@@ -239,7 +241,7 @@ function MobileShell({ user }: { user: ReturnType<typeof useSession>["user"] }) 
   const name = useDisplayName(user);
   const qc = useQueryClient();
 
-  useEffect(() => {
+useEffect(() => {
     ensureReminders();
     const onFocus = () => ensureReminders();
     const onVisible = () => {
@@ -252,6 +254,28 @@ function MobileShell({ user }: { user: ReturnType<typeof useSession>["user"] }) 
       document.removeEventListener("visibilitychange", onVisible);
     };
   }, []);
+
+  // Handle the Google OAuth return after the WebView round-trip: the gateway
+  // redirects to <origin>/oauth/google/return?success=true&code=... and
+  // Capacitor serves this SPA. Exchange the code, sync, then clean the URL.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+    if (params.get("success") === "true" && code) {
+      (async () => {
+        try {
+          await completeGoogleConnect(code);
+          await syncGoogleCalendarNow();
+          qc.invalidateQueries({ queryKey: ["tasks"] });
+          qc.invalidateQueries({ queryKey: ["google-calendar-status"] });
+        } catch (error) {
+          console.error("Google Calendar connection completion failed", error);
+        } finally {
+          window.history.replaceState({}, "", window.location.origin);
+        }
+      })();
+    }
+  }, [qc]);
 
   async function signOut() {
     await qc.cancelQueries();
@@ -309,13 +333,14 @@ function TodayScreen({ onEdit }: { onEdit: (task: Task) => void }) {
   );
   const done = todays.filter((task) => task.completed).length;
 
-  return (
+return (
     <section className="mx-auto max-w-md px-5 pt-8">
       <p className="text-xs uppercase text-muted-foreground">Today</p>
       <h2 className="mt-1 text-3xl font-semibold">Your tasks</h2>
       <p className="mt-1 text-sm text-muted-foreground">
         {todays.length ? `${done} of ${todays.length} complete` : "Nothing planned yet. Tap + to add a task."}
       </p>
+      <GoogleConnectCard className="mt-4" />
       <TaskList className="mt-6" tasks={todays} onEdit={onEdit} />
     </section>
   );
