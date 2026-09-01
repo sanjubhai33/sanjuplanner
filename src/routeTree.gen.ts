@@ -15,6 +15,8 @@ import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TaskNewRouteImport } from './routes/task.new'
 import { Route as TaskIdRouteImport } from './routes/task.$id'
+import { Route as OauthGoogleReturnRouteImport } from './routes/oauth/google/return'
+import { Route as ApiPublicGoogleCalendarRouteImport } from './routes/api/public/google-calendar'
 import { Route as ApiPublicDailyReportRouteImport } from './routes/api/public/daily-report'
 
 const UpcomingRoute = UpcomingRouteImport.update({
@@ -47,6 +49,16 @@ const TaskIdRoute = TaskIdRouteImport.update({
   path: '/task/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OauthGoogleReturnRoute = OauthGoogleReturnRouteImport.update({
+  id: '/oauth/google/return',
+  path: '/oauth/google/return',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicGoogleCalendarRoute = ApiPublicGoogleCalendarRouteImport.update({
+  id: '/api/public/google-calendar',
+  path: '/api/public/google-calendar',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicDailyReportRoute = ApiPublicDailyReportRouteImport.update({
   id: '/api/public/daily-report',
   path: '/api/public/daily-report',
@@ -61,6 +73,8 @@ export interface FileRoutesByFullPath {
   '/task/$id': typeof TaskIdRoute
   '/task/new': typeof TaskNewRoute
   '/api/public/daily-report': typeof ApiPublicDailyReportRoute
+  '/api/public/google-calendar': typeof ApiPublicGoogleCalendarRoute
+  '/oauth/google/return': typeof OauthGoogleReturnRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +84,8 @@ export interface FileRoutesByTo {
   '/task/$id': typeof TaskIdRoute
   '/task/new': typeof TaskNewRoute
   '/api/public/daily-report': typeof ApiPublicDailyReportRoute
+  '/api/public/google-calendar': typeof ApiPublicGoogleCalendarRoute
+  '/oauth/google/return': typeof OauthGoogleReturnRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,6 +96,8 @@ export interface FileRoutesById {
   '/task/$id': typeof TaskIdRoute
   '/task/new': typeof TaskNewRoute
   '/api/public/daily-report': typeof ApiPublicDailyReportRoute
+  '/api/public/google-calendar': typeof ApiPublicGoogleCalendarRoute
+  '/oauth/google/return': typeof OauthGoogleReturnRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +109,8 @@ export interface FileRouteTypes {
     | '/task/$id'
     | '/task/new'
     | '/api/public/daily-report'
+    | '/api/public/google-calendar'
+    | '/oauth/google/return'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +120,8 @@ export interface FileRouteTypes {
     | '/task/$id'
     | '/task/new'
     | '/api/public/daily-report'
+    | '/api/public/google-calendar'
+    | '/oauth/google/return'
   id:
     | '__root__'
     | '/'
@@ -109,6 +131,8 @@ export interface FileRouteTypes {
     | '/task/$id'
     | '/task/new'
     | '/api/public/daily-report'
+    | '/api/public/google-calendar'
+    | '/oauth/google/return'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,6 +143,8 @@ export interface RootRouteChildren {
   TaskIdRoute: typeof TaskIdRoute
   TaskNewRoute: typeof TaskNewRoute
   ApiPublicDailyReportRoute: typeof ApiPublicDailyReportRoute
+  ApiPublicGoogleCalendarRoute: typeof ApiPublicGoogleCalendarRoute
+  OauthGoogleReturnRoute: typeof OauthGoogleReturnRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -165,6 +191,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TaskIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/oauth/google/return': {
+      id: '/oauth/google/return'
+      path: '/oauth/google/return'
+      fullPath: '/oauth/google/return'
+      preLoaderRoute: typeof OauthGoogleReturnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/google-calendar': {
+      id: '/api/public/google-calendar'
+      path: '/api/public/google-calendar'
+      fullPath: '/api/public/google-calendar'
+      preLoaderRoute: typeof ApiPublicGoogleCalendarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/daily-report': {
       id: '/api/public/daily-report'
       path: '/api/public/daily-report'
@@ -183,6 +223,8 @@ const rootRouteChildren: RootRouteChildren = {
   TaskIdRoute: TaskIdRoute,
   TaskNewRoute: TaskNewRoute,
   ApiPublicDailyReportRoute: ApiPublicDailyReportRoute,
+  ApiPublicGoogleCalendarRoute: ApiPublicGoogleCalendarRoute,
+  OauthGoogleReturnRoute: OauthGoogleReturnRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
