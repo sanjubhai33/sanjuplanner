@@ -7,8 +7,9 @@ import {
   getGoogleCalendarStatus,
   isGoogleNativePlatform,
   startGoogleConnect,
-  syncGoogleCalendarNow,
+syncGoogleCalendarNow,
 } from "@/lib/google-calendar";
+import { syncTasks } from "@/lib/tasks";
 
 function waitForOAuthCompletion(popup: Window): Promise<string | null> {
   return new Promise<string | null>((resolve, reject) => {
@@ -81,8 +82,9 @@ export function GoogleConnectCard({
     setBusy(true);
     setError("");
     setNotice("");
-    try {
+try {
       const result = await syncGoogleCalendarNow();
+      await syncTasks(); // pull freshly synced Google rows into localforage
       setNotice(
         result?.synced ? `Synced ${result.synced} calendar events.` : "Calendar is up to date.",
       );
