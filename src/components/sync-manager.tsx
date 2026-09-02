@@ -18,12 +18,13 @@ const runSync = async () => {
         if (!data.session) return;
         await Promise.all([syncTasks(), syncJournal()]);
 
-        // Throttled Google Calendar sync (once per 30 min while open).
+// Throttled Google Calendar sync (once per 30 min while open).
         try {
           const last = Number(localStorage.getItem("google-sync-last") || 0);
           if (Date.now() - last > 30 * 60 * 1000) {
             await syncGoogleCalendarNow();
             localStorage.setItem("google-sync-last", String(Date.now()));
+            await syncTasks(); // pull freshly synced Google rows into localforage
             if (mounted) qc.invalidateQueries({ queryKey: ["tasks"] });
           }
         } catch {

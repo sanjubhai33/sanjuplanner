@@ -12,6 +12,7 @@ import { completeGoogleConnect, syncGoogleCalendarNow } from "@/lib/google-calen
 import { useSession, useDisplayName } from "@/lib/session";
 import { useTasks, useToggleTask, useUpsertTask, useDeleteTask } from "@/lib/use-tasks";
 import { newTask, todayISO as taskTodayISO, type Priority, type Task } from "@/lib/tasks";
+import { syncTasks } from "@/lib/tasks";
 import { todayISO, loadRecentDays, type DayEntry } from "@/lib/journal";
 import { useDay, useUpdateDay } from "@/lib/use-journal";
 import { ensureReminders } from "@/lib/reminders";
@@ -262,10 +263,11 @@ useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
     if (params.get("success") === "true" && code) {
-      (async () => {
+(async () => {
         try {
           await completeGoogleConnect(code);
           await syncGoogleCalendarNow();
+          await syncTasks(); // pull freshly synced Google rows into localforage
           qc.invalidateQueries({ queryKey: ["tasks"] });
           qc.invalidateQueries({ queryKey: ["google-calendar-status"] });
         } catch (error) {

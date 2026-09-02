@@ -19,6 +19,7 @@ import { Route as OauthGoogleReturnRouteImport } from './routes/oauth/google/ret
 import { Route as ApiPublicDailyReportRouteImport } from './routes/api/public/daily-report'
 import { Route as ApiPublicGoogleCalendarIndexRouteImport } from './routes/api/public/google-calendar/index'
 import { Route as ApiPublicGoogleCalendarSyncRouteImport } from './routes/api/public/google-calendar/sync'
+import { Route as ApiPublicGoogleCalendarStatusRouteImport } from './routes/api/public/google-calendar/status'
 import { Route as ApiPublicGoogleCalendarStartRouteImport } from './routes/api/public/google-calendar/start'
 import { Route as ApiPublicGoogleCalendarDisconnectRouteImport } from './routes/api/public/google-calendar/disconnect'
 import { Route as ApiPublicGoogleCalendarCompleteRouteImport } from './routes/api/public/google-calendar/complete'
@@ -75,6 +76,12 @@ const ApiPublicGoogleCalendarSyncRoute =
     path: '/api/public/google-calendar/sync',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicGoogleCalendarStatusRoute =
+  ApiPublicGoogleCalendarStatusRouteImport.update({
+    id: '/api/public/google-calendar/status',
+    path: '/api/public/google-calendar/status',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicGoogleCalendarStartRoute =
   ApiPublicGoogleCalendarStartRouteImport.update({
     id: '/api/public/google-calendar/start',
@@ -106,6 +113,7 @@ export interface FileRoutesByFullPath {
   '/api/public/google-calendar/complete': typeof ApiPublicGoogleCalendarCompleteRoute
   '/api/public/google-calendar/disconnect': typeof ApiPublicGoogleCalendarDisconnectRoute
   '/api/public/google-calendar/start': typeof ApiPublicGoogleCalendarStartRoute
+  '/api/public/google-calendar/status': typeof ApiPublicGoogleCalendarStatusRoute
   '/api/public/google-calendar/sync': typeof ApiPublicGoogleCalendarSyncRoute
   '/api/public/google-calendar/': typeof ApiPublicGoogleCalendarIndexRoute
 }
@@ -121,6 +129,7 @@ export interface FileRoutesByTo {
   '/api/public/google-calendar/complete': typeof ApiPublicGoogleCalendarCompleteRoute
   '/api/public/google-calendar/disconnect': typeof ApiPublicGoogleCalendarDisconnectRoute
   '/api/public/google-calendar/start': typeof ApiPublicGoogleCalendarStartRoute
+  '/api/public/google-calendar/status': typeof ApiPublicGoogleCalendarStatusRoute
   '/api/public/google-calendar/sync': typeof ApiPublicGoogleCalendarSyncRoute
   '/api/public/google-calendar': typeof ApiPublicGoogleCalendarIndexRoute
 }
@@ -137,6 +146,7 @@ export interface FileRoutesById {
   '/api/public/google-calendar/complete': typeof ApiPublicGoogleCalendarCompleteRoute
   '/api/public/google-calendar/disconnect': typeof ApiPublicGoogleCalendarDisconnectRoute
   '/api/public/google-calendar/start': typeof ApiPublicGoogleCalendarStartRoute
+  '/api/public/google-calendar/status': typeof ApiPublicGoogleCalendarStatusRoute
   '/api/public/google-calendar/sync': typeof ApiPublicGoogleCalendarSyncRoute
   '/api/public/google-calendar/': typeof ApiPublicGoogleCalendarIndexRoute
 }
@@ -154,6 +164,7 @@ export interface FileRouteTypes {
     | '/api/public/google-calendar/complete'
     | '/api/public/google-calendar/disconnect'
     | '/api/public/google-calendar/start'
+    | '/api/public/google-calendar/status'
     | '/api/public/google-calendar/sync'
     | '/api/public/google-calendar/'
   fileRoutesByTo: FileRoutesByTo
@@ -169,6 +180,7 @@ export interface FileRouteTypes {
     | '/api/public/google-calendar/complete'
     | '/api/public/google-calendar/disconnect'
     | '/api/public/google-calendar/start'
+    | '/api/public/google-calendar/status'
     | '/api/public/google-calendar/sync'
     | '/api/public/google-calendar'
   id:
@@ -184,6 +196,7 @@ export interface FileRouteTypes {
     | '/api/public/google-calendar/complete'
     | '/api/public/google-calendar/disconnect'
     | '/api/public/google-calendar/start'
+    | '/api/public/google-calendar/status'
     | '/api/public/google-calendar/sync'
     | '/api/public/google-calendar/'
   fileRoutesById: FileRoutesById
@@ -200,6 +213,7 @@ export interface RootRouteChildren {
   ApiPublicGoogleCalendarCompleteRoute: typeof ApiPublicGoogleCalendarCompleteRoute
   ApiPublicGoogleCalendarDisconnectRoute: typeof ApiPublicGoogleCalendarDisconnectRoute
   ApiPublicGoogleCalendarStartRoute: typeof ApiPublicGoogleCalendarStartRoute
+  ApiPublicGoogleCalendarStatusRoute: typeof ApiPublicGoogleCalendarStatusRoute
   ApiPublicGoogleCalendarSyncRoute: typeof ApiPublicGoogleCalendarSyncRoute
   ApiPublicGoogleCalendarIndexRoute: typeof ApiPublicGoogleCalendarIndexRoute
 }
@@ -276,6 +290,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicGoogleCalendarSyncRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/google-calendar/status': {
+      id: '/api/public/google-calendar/status'
+      path: '/api/public/google-calendar/status'
+      fullPath: '/api/public/google-calendar/status'
+      preLoaderRoute: typeof ApiPublicGoogleCalendarStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/google-calendar/start': {
       id: '/api/public/google-calendar/start'
       path: '/api/public/google-calendar/start'
@@ -313,6 +334,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicGoogleCalendarDisconnectRoute:
     ApiPublicGoogleCalendarDisconnectRoute,
   ApiPublicGoogleCalendarStartRoute: ApiPublicGoogleCalendarStartRoute,
+  ApiPublicGoogleCalendarStatusRoute: ApiPublicGoogleCalendarStatusRoute,
   ApiPublicGoogleCalendarSyncRoute: ApiPublicGoogleCalendarSyncRoute,
   ApiPublicGoogleCalendarIndexRoute: ApiPublicGoogleCalendarIndexRoute,
 }
