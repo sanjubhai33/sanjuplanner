@@ -85,6 +85,8 @@ function CalendarPage() {
         </div>
       </header>
 
+      <GoogleConnectCard className="mb-5" />
+
       <MonthGrid
         year={cursor.year}
         month={cursor.month}
