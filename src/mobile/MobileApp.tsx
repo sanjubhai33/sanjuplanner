@@ -317,7 +317,7 @@ useEffect(() => {
         </button>
       </header>
 
-      <main className="pb-28">
+      <main className="pb-40">
         {tab === "today" && <TodayScreen onEdit={setEditing} />}
         {tab === "upcoming" && <UpcomingScreen onEdit={setEditing} />}
         {tab === "calendar" && <CalendarScreen onEdit={setEditing} />}
