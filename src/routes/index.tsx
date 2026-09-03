@@ -4,7 +4,7 @@ import { useTasks } from "@/lib/use-tasks";
 import { todayISO } from "@/lib/tasks";
 import { TaskRow } from "@/components/task-row";
 import { AddButton } from "@/components/add-button";
-import { GoogleConnectCard } from "@/components/google-connect-card";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
