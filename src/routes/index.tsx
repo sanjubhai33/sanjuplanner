@@ -54,7 +54,6 @@ function TodayPage() {
         </p>
 </header>
 
-      <GoogleConnectCard className="mb-6" />
 
       {todays.length > 0 ? (
         <Timeline tasks={todays} />
