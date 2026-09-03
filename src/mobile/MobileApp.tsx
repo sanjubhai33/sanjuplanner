@@ -279,6 +279,19 @@ useEffect(() => {
     }
   }, [qc]);
 
+  // Keyboard: focused field ko view me le aata hai taki text keyboard ke peeche na chhupe.
+  useEffect(() => {
+    function onFocusIn(event: FocusEvent) {
+      const el = event.target as HTMLElement | null;
+      if (!el || !el.matches?.("input, textarea, select, [contenteditable='true']")) return;
+      window.setTimeout(() => {
+        el.scrollIntoView({ block: "center", behavior: "smooth" });
+      }, 250);
+    }
+    document.addEventListener("focusin", onFocusIn);
+    return () => document.removeEventListener("focusin", onFocusIn);
+  }, []);
+
   async function signOut() {
     await qc.cancelQueries();
     qc.clear();
@@ -304,7 +317,7 @@ useEffect(() => {
         </button>
       </header>
 
-      <main className="pb-28">
+      <main className="pb-40">
         {tab === "today" && <TodayScreen onEdit={setEditing} />}
         {tab === "upcoming" && <UpcomingScreen onEdit={setEditing} />}
         {tab === "calendar" && <CalendarScreen onEdit={setEditing} />}
@@ -342,7 +355,6 @@ return (
       <p className="mt-1 text-sm text-muted-foreground">
         {todays.length ? `${done} of ${todays.length} complete` : "Nothing planned yet. Tap + to add a task."}
       </p>
-      <GoogleConnectCard className="mt-4" />
       <TaskList className="mt-6" tasks={todays} onEdit={onEdit} />
     </section>
   );
@@ -389,6 +401,7 @@ function CalendarScreen({ onEdit }: { onEdit: (task: Task) => void }) {
     <section className="mx-auto max-w-md px-5 pt-8">
       <p className="text-xs uppercase text-muted-foreground">Calendar</p>
       <h2 className="mt-1 text-3xl font-semibold">Pick a date</h2>
+      <GoogleConnectCard className="mt-4" />
       <input
         type="date"
         value={selected}
@@ -479,7 +492,7 @@ function TaskEditor({ initial, onClose }: { initial: Task; onClose: () => void }
   }
 
   return (
-    <div className="min-h-[100dvh] bg-background px-5 py-6 text-foreground">
+    <div className="min-h-[100dvh] bg-background px-5 pb-40 pt-6 text-foreground">
       <div className="mx-auto max-w-md">
         <div className="mb-5 flex items-center justify-between">
           <button onClick={onClose} className="text-sm font-medium text-muted-foreground">← Back</button>

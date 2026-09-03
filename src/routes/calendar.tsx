@@ -5,6 +5,7 @@ import { todayISO } from "@/lib/tasks";
 import { TaskRow } from "@/components/task-row";
 import { AddButton } from "@/components/add-button";
 import { DayRecord } from "@/components/day-record";
+import { GoogleConnectCard } from "@/components/google-connect-card";
 
 import { cn } from "@/lib/utils";
 
@@ -83,6 +84,8 @@ function CalendarPage() {
           </button>
         </div>
       </header>
+
+      <GoogleConnectCard className="mb-5" />
 
       <MonthGrid
         year={cursor.year}
