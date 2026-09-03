@@ -388,6 +388,7 @@ function CalendarScreen({ onEdit }: { onEdit: (task: Task) => void }) {
     <section className="mx-auto max-w-md px-5 pt-8">
       <p className="text-xs uppercase text-muted-foreground">Calendar</p>
       <h2 className="mt-1 text-3xl font-semibold">Pick a date</h2>
+      <GoogleConnectCard className="mt-4" />
       <input
         type="date"
         value={selected}
