@@ -342,7 +342,6 @@ return (
       <p className="mt-1 text-sm text-muted-foreground">
         {todays.length ? `${done} of ${todays.length} complete` : "Nothing planned yet. Tap + to add a task."}
       </p>
-      <GoogleConnectCard className="mt-4" />
       <TaskList className="mt-6" tasks={todays} onEdit={onEdit} />
     </section>
   );
