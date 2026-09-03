@@ -492,7 +492,7 @@ function TaskEditor({ initial, onClose }: { initial: Task; onClose: () => void }
   }
 
   return (
-    <div className="min-h-[100dvh] bg-background px-5 py-6 text-foreground">
+    <div className="min-h-[100dvh] bg-background px-5 pb-40 pt-6 text-foreground">
       <div className="mx-auto max-w-md">
         <div className="mb-5 flex items-center justify-between">
           <button onClick={onClose} className="text-sm font-medium text-muted-foreground">← Back</button>
