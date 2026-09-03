@@ -279,6 +279,19 @@ useEffect(() => {
     }
   }, [qc]);
 
+  // Keyboard: focused field ko view me le aata hai taki text keyboard ke peeche na chhupe.
+  useEffect(() => {
+    function onFocusIn(event: FocusEvent) {
+      const el = event.target as HTMLElement | null;
+      if (!el || !el.matches?.("input, textarea, select, [contenteditable='true']")) return;
+      window.setTimeout(() => {
+        el.scrollIntoView({ block: "center", behavior: "smooth" });
+      }, 250);
+    }
+    document.addEventListener("focusin", onFocusIn);
+    return () => document.removeEventListener("focusin", onFocusIn);
+  }, []);
+
   async function signOut() {
     await qc.cancelQueries();
     qc.clear();
