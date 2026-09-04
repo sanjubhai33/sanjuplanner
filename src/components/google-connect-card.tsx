@@ -121,7 +121,13 @@ try {
       await doSync();
       await refetch();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Connection failed.");
+      const msg = e instanceof Error ? e.message : "Connection failed.";
+      setError(
+        /access_denied|blocked|verification/i.test(msg)
+          ? "Google ne block kiya (app abhi Testing mode me hai). Google Cloud Console → Audience me apna Gmail 'Test users' me add karo, ya app ko Publish karo — phir dobara try karo."
+          : msg,
+      );
+
     } finally {
       setBusy(false);
     }
