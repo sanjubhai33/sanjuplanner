@@ -225,7 +225,7 @@ try {
               <Unplug className="h-4 w-4" /> Disconnect
             </button>
           </>
-        )}
+        ) : null}
       </div>
     </div>
   );
