@@ -197,7 +197,17 @@ try {
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             {busy ? "Connecting…" : "Connect Google Calendar"}
           </button>
-        ) : (
+        ) : null}
+        {!connected && native ? (
+          <button
+            onClick={() => void refetch()}
+            disabled={busy}
+            className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted disabled:opacity-60"
+          >
+            <RefreshCw className="h-4 w-4" /> Refresh
+          </button>
+        ) : null}
+        {connected ? (
           <>
             <button
               onClick={() => doSync()}
