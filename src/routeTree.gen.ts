@@ -23,6 +23,7 @@ import { Route as ApiPublicGoogleCalendarSyncRouteImport } from './routes/api/pu
 import { Route as ApiPublicGoogleCalendarStatusRouteImport } from './routes/api/public/google-calendar/status'
 import { Route as ApiPublicGoogleCalendarStartRouteImport } from './routes/api/public/google-calendar/start'
 import { Route as ApiPublicGoogleCalendarDisconnectRouteImport } from './routes/api/public/google-calendar/disconnect'
+import { Route as ApiPublicGoogleCalendarCompleteNativeRouteImport } from './routes/api/public/google-calendar/complete-native'
 import { Route as ApiPublicGoogleCalendarCompleteRouteImport } from './routes/api/public/google-calendar/complete'
 
 const UpcomingRoute = UpcomingRouteImport.update({
@@ -100,6 +101,12 @@ const ApiPublicGoogleCalendarDisconnectRoute =
     path: '/api/public/google-calendar/disconnect',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicGoogleCalendarCompleteNativeRoute =
+  ApiPublicGoogleCalendarCompleteNativeRouteImport.update({
+    id: '/api/public/google-calendar/complete-native',
+    path: '/api/public/google-calendar/complete-native',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicGoogleCalendarCompleteRoute =
   ApiPublicGoogleCalendarCompleteRouteImport.update({
     id: '/api/public/google-calendar/complete',
@@ -118,6 +125,7 @@ export interface FileRoutesByFullPath {
   '/api/public/daily-report': typeof ApiPublicDailyReportRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/api/public/google-calendar/complete': typeof ApiPublicGoogleCalendarCompleteRoute
+  '/api/public/google-calendar/complete-native': typeof ApiPublicGoogleCalendarCompleteNativeRoute
   '/api/public/google-calendar/disconnect': typeof ApiPublicGoogleCalendarDisconnectRoute
   '/api/public/google-calendar/start': typeof ApiPublicGoogleCalendarStartRoute
   '/api/public/google-calendar/status': typeof ApiPublicGoogleCalendarStatusRoute
@@ -135,6 +143,7 @@ export interface FileRoutesByTo {
   '/api/public/daily-report': typeof ApiPublicDailyReportRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/api/public/google-calendar/complete': typeof ApiPublicGoogleCalendarCompleteRoute
+  '/api/public/google-calendar/complete-native': typeof ApiPublicGoogleCalendarCompleteNativeRoute
   '/api/public/google-calendar/disconnect': typeof ApiPublicGoogleCalendarDisconnectRoute
   '/api/public/google-calendar/start': typeof ApiPublicGoogleCalendarStartRoute
   '/api/public/google-calendar/status': typeof ApiPublicGoogleCalendarStatusRoute
@@ -153,6 +162,7 @@ export interface FileRoutesById {
   '/api/public/daily-report': typeof ApiPublicDailyReportRoute
   '/oauth/google/return': typeof OauthGoogleReturnRoute
   '/api/public/google-calendar/complete': typeof ApiPublicGoogleCalendarCompleteRoute
+  '/api/public/google-calendar/complete-native': typeof ApiPublicGoogleCalendarCompleteNativeRoute
   '/api/public/google-calendar/disconnect': typeof ApiPublicGoogleCalendarDisconnectRoute
   '/api/public/google-calendar/start': typeof ApiPublicGoogleCalendarStartRoute
   '/api/public/google-calendar/status': typeof ApiPublicGoogleCalendarStatusRoute
@@ -172,6 +182,7 @@ export interface FileRouteTypes {
     | '/api/public/daily-report'
     | '/oauth/google/return'
     | '/api/public/google-calendar/complete'
+    | '/api/public/google-calendar/complete-native'
     | '/api/public/google-calendar/disconnect'
     | '/api/public/google-calendar/start'
     | '/api/public/google-calendar/status'
@@ -189,6 +200,7 @@ export interface FileRouteTypes {
     | '/api/public/daily-report'
     | '/oauth/google/return'
     | '/api/public/google-calendar/complete'
+    | '/api/public/google-calendar/complete-native'
     | '/api/public/google-calendar/disconnect'
     | '/api/public/google-calendar/start'
     | '/api/public/google-calendar/status'
@@ -206,6 +218,7 @@ export interface FileRouteTypes {
     | '/api/public/daily-report'
     | '/oauth/google/return'
     | '/api/public/google-calendar/complete'
+    | '/api/public/google-calendar/complete-native'
     | '/api/public/google-calendar/disconnect'
     | '/api/public/google-calendar/start'
     | '/api/public/google-calendar/status'
@@ -224,6 +237,7 @@ export interface RootRouteChildren {
   ApiPublicDailyReportRoute: typeof ApiPublicDailyReportRoute
   OauthGoogleReturnRoute: typeof OauthGoogleReturnRoute
   ApiPublicGoogleCalendarCompleteRoute: typeof ApiPublicGoogleCalendarCompleteRoute
+  ApiPublicGoogleCalendarCompleteNativeRoute: typeof ApiPublicGoogleCalendarCompleteNativeRoute
   ApiPublicGoogleCalendarDisconnectRoute: typeof ApiPublicGoogleCalendarDisconnectRoute
   ApiPublicGoogleCalendarStartRoute: typeof ApiPublicGoogleCalendarStartRoute
   ApiPublicGoogleCalendarStatusRoute: typeof ApiPublicGoogleCalendarStatusRoute
@@ -331,6 +345,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicGoogleCalendarDisconnectRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/google-calendar/complete-native': {
+      id: '/api/public/google-calendar/complete-native'
+      path: '/api/public/google-calendar/complete-native'
+      fullPath: '/api/public/google-calendar/complete-native'
+      preLoaderRoute: typeof ApiPublicGoogleCalendarCompleteNativeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/google-calendar/complete': {
       id: '/api/public/google-calendar/complete'
       path: '/api/public/google-calendar/complete'
@@ -352,6 +373,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicDailyReportRoute: ApiPublicDailyReportRoute,
   OauthGoogleReturnRoute: OauthGoogleReturnRoute,
   ApiPublicGoogleCalendarCompleteRoute: ApiPublicGoogleCalendarCompleteRoute,
+  ApiPublicGoogleCalendarCompleteNativeRoute:
+    ApiPublicGoogleCalendarCompleteNativeRoute,
   ApiPublicGoogleCalendarDisconnectRoute:
     ApiPublicGoogleCalendarDisconnectRoute,
   ApiPublicGoogleCalendarStartRoute: ApiPublicGoogleCalendarStartRoute,
