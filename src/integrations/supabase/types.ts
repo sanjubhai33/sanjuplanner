@@ -41,6 +41,24 @@ export type Database = {
         }
         Relationships: []
       }
+      google_oauth_pending: {
+        Row: {
+          created_at: string
+          token: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          token: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          token?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       journal_days: {
         Row: {
           date: string
