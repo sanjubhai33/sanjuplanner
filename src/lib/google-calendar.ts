@@ -40,12 +40,19 @@ async function authedFetch(path: string, init: RequestInit = {}): Promise<any> {
 }
 
 export async function startGoogleConnect(returnOrigin?: string) {
+  const native = isNative();
+  // APK me window.location.origin "localhost" hota hai — Google wahan wapas
+  // nahi aa sakta, isliye published site par return karate hain.
+  const origin =
+    returnOrigin ??
+    (native
+      ? PUBLISHED_API_BASE
+      : typeof window !== "undefined"
+        ? window.location.origin
+        : undefined);
   return authedFetch("/api/public/google-calendar/start", {
     method: "POST",
-    body: JSON.stringify({
-      returnOrigin:
-        returnOrigin ?? (typeof window !== "undefined" ? window.location.origin : undefined),
-    }),
+    body: JSON.stringify({ returnOrigin: origin, native }),
   });
 }
 

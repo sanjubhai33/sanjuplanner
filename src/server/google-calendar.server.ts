@@ -16,9 +16,9 @@ const GATEWAY_BASE_URL = "https://connector-gateway.lovable.dev";
 const CONNECTOR_ID = "google_calendar";
 const CLIENT_API_KEY_ENV = "GOOGLE_CALENDAR_APP_USER_CONNECTOR_CLIENT_API_KEY";
 
+// Sirf calendar padhne ki permission — koi doosra Google data nahi.
 const GOOGLE_SCOPES = [
   "https://www.googleapis.com/auth/userinfo.email",
-  "https://www.googleapis.com/auth/userinfo.profile",
   "https://www.googleapis.com/auth/calendar.readonly",
 ];
 
@@ -45,6 +45,35 @@ export async function startGoogleOAuth(userId: string, returnUrl: string): Promi
   });
 
   return authorizationUrl;
+}
+
+/**
+ * APK flow: Google consent poore browser me khulta hai, isliye return page par
+ * user ka login token nahi hota. Isliye ek short-lived one-time token banate
+ * hain jo sirf server par user se juda hota hai.
+ */
+export async function createPendingToken(userId: string): Promise<string> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const token = crypto.randomUUID().replace(/-/g, "") + crypto.randomUUID().replace(/-/g, "");
+  const { error } = await supabaseAdmin.from("google_oauth_pending").insert({ token, user_id: userId });
+  if (error) throw error;
+  return token;
+}
+
+export async function completeGoogleOAuthWithToken(token: string, code: string): Promise<void> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin
+    .from("google_oauth_pending")
+    .select("user_id, created_at")
+    .eq("token", token)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error("This connection link has expired. Please try connecting again.");
+  await supabaseAdmin.from("google_oauth_pending").delete().eq("token", token);
+  if (Date.now() - new Date(data.created_at).getTime() > 30 * 60 * 1000) {
+    throw new Error("This connection link has expired. Please try connecting again.");
+  }
+  await completeGoogleOAuth(data.user_id, code);
 }
 
 export async function completeGoogleOAuth(userId: string, code: string): Promise<void> {
