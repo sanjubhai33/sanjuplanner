@@ -105,9 +105,12 @@ try {
       const { authorizationUrl } = await startGoogleConnect();
 
       if (native) {
-        // Mobile APK: navigate the whole WebView through Google consent and
-        // back — MobileApp handles the return URL automatically.
-        window.location.href = authorizationUrl;
+        // APK: Google consent phone ke browser me kholte hain; connection
+        // server par complete hoti hai, app me wapas aakar status refresh.
+        window.open(authorizationUrl, "_system");
+        setNotice(
+          "Browser me Google se allow karo, phir app me wapas aakar 'Refresh' dabao — connection ho jayega.",
+        );
         return;
       }
 
