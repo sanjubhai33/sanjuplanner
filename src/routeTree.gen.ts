@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UpcomingRouteImport } from './routes/upcoming'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as JournalRouteImport } from './routes/journal'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as IndexRouteImport } from './routes/index'
@@ -27,6 +28,11 @@ import { Route as ApiPublicGoogleCalendarCompleteRouteImport } from './routes/ap
 const UpcomingRoute = UpcomingRouteImport.update({
   id: '/upcoming',
   path: '/upcoming',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const JournalRoute = JournalRouteImport.update({
@@ -105,6 +111,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/calendar': typeof CalendarRoute
   '/journal': typeof JournalRoute
+  '/privacy': typeof PrivacyRoute
   '/upcoming': typeof UpcomingRoute
   '/task/$id': typeof TaskIdRoute
   '/task/new': typeof TaskNewRoute
@@ -121,6 +128,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/calendar': typeof CalendarRoute
   '/journal': typeof JournalRoute
+  '/privacy': typeof PrivacyRoute
   '/upcoming': typeof UpcomingRoute
   '/task/$id': typeof TaskIdRoute
   '/task/new': typeof TaskNewRoute
@@ -138,6 +146,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/calendar': typeof CalendarRoute
   '/journal': typeof JournalRoute
+  '/privacy': typeof PrivacyRoute
   '/upcoming': typeof UpcomingRoute
   '/task/$id': typeof TaskIdRoute
   '/task/new': typeof TaskNewRoute
@@ -156,6 +165,7 @@ export interface FileRouteTypes {
     | '/'
     | '/calendar'
     | '/journal'
+    | '/privacy'
     | '/upcoming'
     | '/task/$id'
     | '/task/new'
@@ -172,6 +182,7 @@ export interface FileRouteTypes {
     | '/'
     | '/calendar'
     | '/journal'
+    | '/privacy'
     | '/upcoming'
     | '/task/$id'
     | '/task/new'
@@ -188,6 +199,7 @@ export interface FileRouteTypes {
     | '/'
     | '/calendar'
     | '/journal'
+    | '/privacy'
     | '/upcoming'
     | '/task/$id'
     | '/task/new'
@@ -205,6 +217,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CalendarRoute: typeof CalendarRoute
   JournalRoute: typeof JournalRoute
+  PrivacyRoute: typeof PrivacyRoute
   UpcomingRoute: typeof UpcomingRoute
   TaskIdRoute: typeof TaskIdRoute
   TaskNewRoute: typeof TaskNewRoute
@@ -225,6 +238,13 @@ declare module '@tanstack/react-router' {
       path: '/upcoming'
       fullPath: '/upcoming'
       preLoaderRoute: typeof UpcomingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/journal': {
@@ -325,6 +345,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CalendarRoute: CalendarRoute,
   JournalRoute: JournalRoute,
+  PrivacyRoute: PrivacyRoute,
   UpcomingRoute: UpcomingRoute,
   TaskIdRoute: TaskIdRoute,
   TaskNewRoute: TaskNewRoute,
