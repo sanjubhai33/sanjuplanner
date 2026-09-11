@@ -91,7 +91,12 @@ try {
       qc.invalidateQueries({ queryKey: ["tasks"] });
       onStateChange?.();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Sync failed.");
+      const message = e instanceof Error ? e.message : "Sync failed.";
+      setError(
+        /accessNotConfigured|SERVICE_DISABLED|has not been used in project|is disabled/i.test(message)
+          ? "Google Calendar API abhi disabled hai. Google Cloud me ise enable karke 5–10 minute baad Sync now dabayein."
+          : message,
+      );
     } finally {
       setBusy(false);
     }

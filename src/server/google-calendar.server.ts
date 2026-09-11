@@ -145,6 +145,12 @@ export async function syncGoogleCalendarForUser(
   });
   if (!calRes.ok) {
     const text = await calRes.text();
+    console.error(`Calendar list failed [${calRes.status}]: ${text}`);
+    if (/accessNotConfigured|SERVICE_DISABLED|has not been used in project|is disabled/i.test(text)) {
+      throw new Error(
+        "Google Calendar API is disabled. Enable it in your Google Cloud project, wait 5–10 minutes, then tap Sync now.",
+      );
+    }
     throw new Error(`Calendar list failed (${calRes.status}): ${text}`);
   }
   const calBody = (await calRes.json()) as { items?: { id: string }[] };
