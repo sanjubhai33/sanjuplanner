@@ -10,7 +10,7 @@ public class MainActivity extends BridgeActivity {
 
     /** App background me jaate hi home-screen widget ko fresh data ke saath refresh karo. */
     @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
         try {
             AppWidgetManager manager = AppWidgetManager.getInstance(this);
