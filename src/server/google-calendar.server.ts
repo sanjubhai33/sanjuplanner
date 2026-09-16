@@ -183,6 +183,45 @@ export async function syncGoogleCalendarForUser(
     }
   }
 
+  // ---- Google Tasks (to-do list) ----
+  const todos: GoogleTodo[] = [];
+  let todoPermissionMissing = false;
+  const listRes = await callAsAppUser({
+    gatewayBaseUrl: GATEWAY_BASE_URL,
+    connectionAPIKey: key,
+    connectorId: CONNECTOR_ID,
+    path: "/tasks/v1/users/@me/lists?maxResults=100",
+  });
+  if (listRes.ok) {
+    const listBody = (await listRes.json()) as { items?: { id: string }[] };
+    for (const list of listBody.items ?? []) {
+      const tParams = new URLSearchParams({
+        maxResults: "100",
+        showCompleted: "true",
+        showHidden: "true",
+        showDeleted: "true",
+      });
+      const tRes = await callAsAppUser({
+        gatewayBaseUrl: GATEWAY_BASE_URL,
+        connectionAPIKey: key,
+        connectorId: CONNECTOR_ID,
+        path: `/tasks/v1/lists/${encodeURIComponent(list.id)}/tasks?${tParams.toString()}`,
+      });
+      if (!tRes.ok) {
+        console.error(`Google Tasks fetch failed for ${list.id}: ${tRes.status} ${await tRes.text()}`);
+        continue;
+      }
+      const tBody = (await tRes.json()) as { items?: GoogleTodo[] };
+      for (const todo of tBody.items ?? []) todos.push(todo);
+    }
+  } else {
+    const text = await listRes.text();
+    console.error(`Google Tasks list failed [${listRes.status}]: ${text}`);
+    if (listRes.status === 401 || listRes.status === 403 || /insufficient|scope/i.test(text)) {
+      todoPermissionMissing = true;
+    }
+  }
+
   const { data: existingRows, error: fetchError } = await supabase
     .from("tasks")
     .select("id, google_event_id, google_etag, completed")
