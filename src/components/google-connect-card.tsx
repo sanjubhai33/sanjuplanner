@@ -86,7 +86,11 @@ try {
       const result = await syncGoogleCalendarNow();
       await syncTasks(); // pull freshly synced Google rows into localforage
       setNotice(
-        result?.synced ? `Synced ${result.synced} calendar events.` : "Calendar is up to date.",
+        result?.todoPermissionMissing
+          ? "Events sync ho gaye. Google Tasks ke liye ek baar Disconnect karke dobara Connect karo (nayi permission ke liye)."
+          : result?.synced
+            ? `Synced ${result.events ?? 0} events + ${result.todos ?? 0} Google Tasks.`
+            : "Sab up to date hai.",
       );
       qc.invalidateQueries({ queryKey: ["tasks"] });
       onStateChange?.();
