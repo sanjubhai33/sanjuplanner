@@ -173,13 +173,13 @@ try {
             <CalendarClock className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-foreground">Google Calendar sync</p>
+            <p className="text-sm font-semibold text-foreground">Google Calendar & Tasks sync</p>
             <p className="text-xs text-muted-foreground">
               {isLoading
                 ? "Checking…"
                 : connected
-                  ? "Connected — your Google Calendar events appear as tasks."
-                  : "Connect to bring your Google Calendar events into this planner."}
+                  ? "Connected — Google Calendar events aur Google Tasks dono planner me aate hain."
+                  : "Connect karke apne Google Calendar events aur Google Tasks yahan laayein."}
             </p>
           </div>
         </div>
