@@ -16,10 +16,11 @@ const GATEWAY_BASE_URL = "https://connector-gateway.lovable.dev";
 const CONNECTOR_ID = "google_calendar";
 const CLIENT_API_KEY_ENV = "GOOGLE_CALENDAR_APP_USER_CONNECTOR_CLIENT_API_KEY";
 
-// Sirf calendar padhne ki permission — koi doosra Google data nahi.
+// Sirf calendar + Google Tasks padhne ki permission — koi doosra Google data nahi.
 const GOOGLE_SCOPES = [
   "https://www.googleapis.com/auth/userinfo.email",
   "https://www.googleapis.com/auth/calendar.readonly",
+  "https://www.googleapis.com/auth/tasks.readonly",
 ];
 
 function requireClientApiKey(): string {
@@ -100,6 +101,18 @@ export async function disconnectGoogleCalendar(userId: string): Promise<void> {
   await deleteConnectionKeyForUser(userId, CONNECTOR_ID);
 }
 
+interface GoogleTodo {
+  id: string;
+  title?: string;
+  notes?: string;
+  due?: string;
+  status?: string;
+  deleted?: boolean;
+  hidden?: boolean;
+  updated?: string;
+  etag?: string;
+}
+
 interface GoogleEvent {
   id: string;
   summary?: string;
@@ -129,7 +142,13 @@ function newId(): string {
 export async function syncGoogleCalendarForUser(
   supabase: SupabaseClient<Database>,
   userId: string,
-): Promise<{ synced: number; removed: number }> {
+): Promise<{
+  synced: number;
+  events: number;
+  todos: number;
+  removed: number;
+  todoPermissionMissing: boolean;
+}> {
   const key = await getConnectionKeyForUser(userId, CONNECTOR_ID);
   if (!key) throw new Error("Google Calendar is not connected");
 
@@ -179,6 +198,45 @@ export async function syncGoogleCalendarForUser(
     const evBody = (await evRes.json()) as { items?: GoogleEvent[] };
     for (const ev of evBody.items ?? []) {
       events.push({ event: ev, calendarId: cal.id });
+    }
+  }
+
+  // ---- Google Tasks (to-do list) ----
+  const todos: GoogleTodo[] = [];
+  let todoPermissionMissing = false;
+  const listRes = await callAsAppUser({
+    gatewayBaseUrl: GATEWAY_BASE_URL,
+    connectionAPIKey: key,
+    connectorId: CONNECTOR_ID,
+    path: "/tasks/v1/users/@me/lists?maxResults=100",
+  });
+  if (listRes.ok) {
+    const listBody = (await listRes.json()) as { items?: { id: string }[] };
+    for (const list of listBody.items ?? []) {
+      const tParams = new URLSearchParams({
+        maxResults: "100",
+        showCompleted: "true",
+        showHidden: "true",
+        showDeleted: "true",
+      });
+      const tRes = await callAsAppUser({
+        gatewayBaseUrl: GATEWAY_BASE_URL,
+        connectionAPIKey: key,
+        connectorId: CONNECTOR_ID,
+        path: `/tasks/v1/lists/${encodeURIComponent(list.id)}/tasks?${tParams.toString()}`,
+      });
+      if (!tRes.ok) {
+        console.error(`Google Tasks fetch failed for ${list.id}: ${tRes.status} ${await tRes.text()}`);
+        continue;
+      }
+      const tBody = (await tRes.json()) as { items?: GoogleTodo[] };
+      for (const todo of tBody.items ?? []) todos.push(todo);
+    }
+  } else {
+    const text = await listRes.text();
+    console.error(`Google Tasks list failed [${listRes.status}]: ${text}`);
+    if (listRes.status === 401 || listRes.status === 403 || /insufficient|scope/i.test(text)) {
+      todoPermissionMissing = true;
     }
   }
 
@@ -258,6 +316,36 @@ type TaskInsert = Database["public"]["Tables"]["tasks"]["Insert"];
     synced++;
   }
 
+  let todosSynced = 0;
+  for (const todo of todos) {
+    const mapKey = `gtask:${todo.id}`;
+    const prev = existing.get(mapKey);
+    if (todo.deleted) {
+      if (prev) deletes.push(prev.id);
+      continue;
+    }
+    if (!todo.title) continue;
+    if (prev && prev.etag && todo.etag && prev.etag === todo.etag) continue;
+
+    const date = todo.due ? todo.due.slice(0, 10) : toISODate(new Date());
+    upserts.push({
+      id: prev?.id ?? newId(),
+      user_id: userId,
+      title: todo.title,
+      notes: todo.notes || "",
+      date,
+      start_time: null,
+      duration: 30,
+      priority: "medium",
+      completed: todo.status === "completed" ? true : (prev?.completed ?? false),
+      google_event_id: mapKey,
+      google_calendar_id: "google-tasks",
+      google_etag: todo.etag ?? null,
+      updated_at: new Date().toISOString(),
+    });
+    todosSynced++;
+  }
+
   if (upserts.length > 0) {
     const { error } = await supabase.from("tasks").upsert(upserts, { onConflict: "id" });
     if (error) throw error;
@@ -267,5 +355,11 @@ type TaskInsert = Database["public"]["Tables"]["tasks"]["Insert"];
     if (error) throw error;
   }
 
-  return { synced, removed: deletes.length };
+  return {
+    synced: synced + todosSynced,
+    events: synced,
+    todos: todosSynced,
+    removed: deletes.length,
+    todoPermissionMissing,
+  };
 }

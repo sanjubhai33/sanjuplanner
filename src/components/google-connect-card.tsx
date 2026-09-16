@@ -86,7 +86,11 @@ try {
       const result = await syncGoogleCalendarNow();
       await syncTasks(); // pull freshly synced Google rows into localforage
       setNotice(
-        result?.synced ? `Synced ${result.synced} calendar events.` : "Calendar is up to date.",
+        result?.todoPermissionMissing
+          ? "Events sync ho gaye. Google Tasks ke liye ek baar Disconnect karke dobara Connect karo (nayi permission ke liye)."
+          : result?.synced
+            ? `Synced ${result.events ?? 0} events + ${result.todos ?? 0} Google Tasks.`
+            : "Sab up to date hai.",
       );
       qc.invalidateQueries({ queryKey: ["tasks"] });
       onStateChange?.();
@@ -169,13 +173,13 @@ try {
             <CalendarClock className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-foreground">Google Calendar sync</p>
+            <p className="text-sm font-semibold text-foreground">Google Calendar & Tasks sync</p>
             <p className="text-xs text-muted-foreground">
               {isLoading
                 ? "Checking…"
                 : connected
-                  ? "Connected — your Google Calendar events appear as tasks."
-                  : "Connect to bring your Google Calendar events into this planner."}
+                  ? "Connected — Google Calendar events aur Google Tasks dono planner me aate hain."
+                  : "Connect karke apne Google Calendar events aur Google Tasks yahan laayein."}
             </p>
           </div>
         </div>
