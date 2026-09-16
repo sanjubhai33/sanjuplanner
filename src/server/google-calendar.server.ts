@@ -101,6 +101,18 @@ export async function disconnectGoogleCalendar(userId: string): Promise<void> {
   await deleteConnectionKeyForUser(userId, CONNECTOR_ID);
 }
 
+interface GoogleTodo {
+  id: string;
+  title?: string;
+  notes?: string;
+  due?: string;
+  status?: string;
+  deleted?: boolean;
+  hidden?: boolean;
+  updated?: string;
+  etag?: string;
+}
+
 interface GoogleEvent {
   id: string;
   summary?: string;
