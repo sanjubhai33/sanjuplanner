@@ -310,6 +310,36 @@ type TaskInsert = Database["public"]["Tables"]["tasks"]["Insert"];
     synced++;
   }
 
+  let todosSynced = 0;
+  for (const todo of todos) {
+    const mapKey = `gtask:${todo.id}`;
+    const prev = existing.get(mapKey);
+    if (todo.deleted) {
+      if (prev) deletes.push(prev.id);
+      continue;
+    }
+    if (!todo.title) continue;
+    if (prev && prev.etag && todo.etag && prev.etag === todo.etag) continue;
+
+    const date = todo.due ? todo.due.slice(0, 10) : toISODate(new Date());
+    upserts.push({
+      id: prev?.id ?? newId(),
+      user_id: userId,
+      title: todo.title,
+      notes: todo.notes || "",
+      date,
+      start_time: null,
+      duration: 30,
+      priority: "medium",
+      completed: todo.status === "completed" ? true : (prev?.completed ?? false),
+      google_event_id: mapKey,
+      google_calendar_id: "google-tasks",
+      google_etag: todo.etag ?? null,
+      updated_at: new Date().toISOString(),
+    });
+    todosSynced++;
+  }
+
   if (upserts.length > 0) {
     const { error } = await supabase.from("tasks").upsert(upserts, { onConflict: "id" });
     if (error) throw error;
