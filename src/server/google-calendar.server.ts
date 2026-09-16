@@ -349,5 +349,11 @@ type TaskInsert = Database["public"]["Tables"]["tasks"]["Insert"];
     if (error) throw error;
   }
 
-  return { synced, removed: deletes.length };
+  return {
+    synced: synced + todosSynced,
+    events: synced,
+    todos: todosSynced,
+    removed: deletes.length,
+    todoPermissionMissing,
+  };
 }
