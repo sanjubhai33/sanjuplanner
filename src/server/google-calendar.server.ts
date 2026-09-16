@@ -142,7 +142,13 @@ function newId(): string {
 export async function syncGoogleCalendarForUser(
   supabase: SupabaseClient<Database>,
   userId: string,
-): Promise<{ synced: number; removed: number }> {
+): Promise<{
+  synced: number;
+  events: number;
+  todos: number;
+  removed: number;
+  todoPermissionMissing: boolean;
+}> {
   const key = await getConnectionKeyForUser(userId, CONNECTOR_ID);
   if (!key) throw new Error("Google Calendar is not connected");
 
