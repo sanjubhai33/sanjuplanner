@@ -72,7 +72,11 @@ export function AuthPage() {
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-foreground">Daily Planner</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {mode === "signin" ? "Welcome back" : "Create your account"}
+            {mode === "signin"
+              ? "Welcome back"
+              : mode === "signup"
+                ? "Create your account"
+                : "Reset your password"}
           </p>
         </div>
 
