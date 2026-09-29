@@ -99,7 +99,7 @@ function LoadingScreen() {
 }
 
 function MobileAuth() {
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -111,6 +111,16 @@ function MobileAuth() {
     setMessage("");
     setBusy(true);
     try {
+      if (mode === "forgot") {
+        // APK me origin localhost hota hai, isliye reset link published site par bhejo.
+        const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+          redirectTo: "https://sanjuplanner.lovable.app/reset-password",
+        });
+        if (error) throw error;
+        setMessage("Reset link bhej diya. Email (aur spam) check karo, link kholkar naya password set karo, phir yahan sign in karo.");
+        setMode("signin");
+        return;
+      }
       if (mode === "signup") {
         const displayName = name.trim();
         if (!displayName) throw new Error("Enter your name first.");
