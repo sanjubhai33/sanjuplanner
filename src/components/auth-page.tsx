@@ -4,7 +4,7 @@ import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
 
 export function AuthPage() {
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
