@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UpcomingRouteImport } from './routes/upcoming'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as JournalRouteImport } from './routes/journal'
 import { Route as CalendarRouteImport } from './routes/calendar'
@@ -29,6 +30,11 @@ import { Route as ApiPublicGoogleCalendarCompleteRouteImport } from './routes/ap
 const UpcomingRoute = UpcomingRouteImport.update({
   id: '/upcoming',
   path: '/upcoming',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -119,6 +125,7 @@ export interface FileRoutesByFullPath {
   '/calendar': typeof CalendarRoute
   '/journal': typeof JournalRoute
   '/privacy': typeof PrivacyRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/upcoming': typeof UpcomingRoute
   '/task/$id': typeof TaskIdRoute
   '/task/new': typeof TaskNewRoute
@@ -137,6 +144,7 @@ export interface FileRoutesByTo {
   '/calendar': typeof CalendarRoute
   '/journal': typeof JournalRoute
   '/privacy': typeof PrivacyRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/upcoming': typeof UpcomingRoute
   '/task/$id': typeof TaskIdRoute
   '/task/new': typeof TaskNewRoute
@@ -156,6 +164,7 @@ export interface FileRoutesById {
   '/calendar': typeof CalendarRoute
   '/journal': typeof JournalRoute
   '/privacy': typeof PrivacyRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/upcoming': typeof UpcomingRoute
   '/task/$id': typeof TaskIdRoute
   '/task/new': typeof TaskNewRoute
@@ -176,6 +185,7 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/journal'
     | '/privacy'
+    | '/reset-password'
     | '/upcoming'
     | '/task/$id'
     | '/task/new'
@@ -194,6 +204,7 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/journal'
     | '/privacy'
+    | '/reset-password'
     | '/upcoming'
     | '/task/$id'
     | '/task/new'
@@ -212,6 +223,7 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/journal'
     | '/privacy'
+    | '/reset-password'
     | '/upcoming'
     | '/task/$id'
     | '/task/new'
@@ -231,6 +243,7 @@ export interface RootRouteChildren {
   CalendarRoute: typeof CalendarRoute
   JournalRoute: typeof JournalRoute
   PrivacyRoute: typeof PrivacyRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   UpcomingRoute: typeof UpcomingRoute
   TaskIdRoute: typeof TaskIdRoute
   TaskNewRoute: typeof TaskNewRoute
@@ -252,6 +265,13 @@ declare module '@tanstack/react-router' {
       path: '/upcoming'
       fullPath: '/upcoming'
       preLoaderRoute: typeof UpcomingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -367,6 +387,7 @@ const rootRouteChildren: RootRouteChildren = {
   CalendarRoute: CalendarRoute,
   JournalRoute: JournalRoute,
   PrivacyRoute: PrivacyRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   UpcomingRoute: UpcomingRoute,
   TaskIdRoute: TaskIdRoute,
   TaskNewRoute: TaskNewRoute,

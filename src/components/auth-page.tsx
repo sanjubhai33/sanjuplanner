@@ -4,7 +4,7 @@ import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
 
 export function AuthPage() {
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -14,6 +14,15 @@ export function AuthPage() {
     e.preventDefault();
     setLoading(true);
     try {
+      if (mode === "forgot") {
+        const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw error;
+        toast.success("Reset link sent to your email. Check inbox/spam.");
+        setMode("signin");
+        return;
+      }
       if (mode === "signup") {
         if (!name.trim()) {
           toast.error("Please enter your name");
@@ -63,7 +72,11 @@ export function AuthPage() {
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-foreground">Daily Planner</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {mode === "signin" ? "Welcome back" : "Create your account"}
+            {mode === "signin"
+              ? "Welcome back"
+              : mode === "signup"
+                ? "Create your account"
+                : "Reset your password"}
           </p>
         </div>
 
@@ -119,28 +132,54 @@ export function AuthPage() {
               placeholder="you@example.com"
             />
           </div>
-          <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1">
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-              autoComplete={mode === "signup" ? "new-password" : "current-password"}
-              className="w-full rounded-lg border border-border bg-card px-3 py-2.5 text-sm outline-none focus:border-primary"
-              placeholder="••••••••"
-            />
-          </div>
+          {mode !== "forgot" && (
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">
+                Password
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+                autoComplete={mode === "signup" ? "new-password" : "current-password"}
+                className="w-full rounded-lg border border-border bg-card px-3 py-2.5 text-sm outline-none focus:border-primary"
+                placeholder="••••••••"
+              />
+            </div>
+          )}
           <button
             type="submit"
             disabled={loading}
             className="w-full rounded-lg bg-primary text-primary-foreground py-2.5 text-sm font-semibold disabled:opacity-60"
           >
-            {loading ? "Please wait…" : mode === "signin" ? "Sign in" : "Create account"}
+            {loading
+              ? "Please wait…"
+              : mode === "signin"
+                ? "Sign in"
+                : mode === "signup"
+                  ? "Create account"
+                  : "Send reset link"}
           </button>
+          {mode === "signin" && (
+            <button
+              type="button"
+              onClick={() => setMode("forgot")}
+              className="w-full text-center text-xs text-muted-foreground hover:text-primary"
+            >
+              Forgot password?
+            </button>
+          )}
+          {mode === "forgot" && (
+            <button
+              type="button"
+              onClick={() => setMode("signin")}
+              className="w-full text-center text-xs text-muted-foreground hover:text-primary"
+            >
+              Back to sign in
+            </button>
+          )}
         </form>
 
         <p className="mt-5 text-center text-sm text-muted-foreground">

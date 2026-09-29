@@ -99,7 +99,7 @@ function LoadingScreen() {
 }
 
 function MobileAuth() {
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -111,6 +111,16 @@ function MobileAuth() {
     setMessage("");
     setBusy(true);
     try {
+      if (mode === "forgot") {
+        // APK me origin localhost hota hai, isliye reset link published site par bhejo.
+        const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+          redirectTo: "https://sanjuplanner.lovable.app/reset-password",
+        });
+        if (error) throw error;
+        setMessage("Reset link bhej diya. Email (aur spam) check karo, link kholkar naya password set karo, phir yahan sign in karo.");
+        setMode("signin");
+        return;
+      }
       if (mode === "signup") {
         const displayName = name.trim();
         if (!displayName) throw new Error("Enter your name first.");
@@ -181,14 +191,40 @@ function MobileAuth() {
             <TextField label="Your name" value={name} onChange={setName} autoComplete="name" placeholder="Your name" />
           )}
           <TextField label="Email" type="email" value={email} onChange={setEmail} autoComplete="email" placeholder="you@example.com" />
-          <TextField label="Password" type="password" value={password} onChange={setPassword} autoComplete={mode === "signup" ? "new-password" : "current-password"} placeholder="••••••••" />
+          {mode !== "forgot" && (
+            <TextField label="Password" type="password" value={password} onChange={setPassword} autoComplete={mode === "signup" ? "new-password" : "current-password"} placeholder="••••••••" />
+          )}
           <button
             type="submit"
-            disabled={busy || !email.trim() || password.length < 6}
+            disabled={busy || !email.trim() || (mode !== "forgot" && password.length < 6)}
             className="h-12 w-full rounded-lg bg-primary text-sm font-semibold text-primary-foreground disabled:opacity-60"
           >
-            {busy ? "Please wait…" : mode === "signin" ? "Sign in" : "Create account"}
+            {busy
+              ? "Please wait…"
+              : mode === "signin"
+                ? "Sign in"
+                : mode === "signup"
+                  ? "Create account"
+                  : "Send reset link"}
           </button>
+          {mode === "signin" && (
+            <button
+              type="button"
+              onClick={() => setMode("forgot")}
+              className="w-full text-center text-xs text-muted-foreground"
+            >
+              Forgot password?
+            </button>
+          )}
+          {mode === "forgot" && (
+            <button
+              type="button"
+              onClick={() => setMode("signin")}
+              className="w-full text-center text-xs text-muted-foreground"
+            >
+              Back to sign in
+            </button>
+          )}
         </form>
 
         {message && <p className="mt-4 rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">{message}</p>}
