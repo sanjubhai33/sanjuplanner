@@ -14,6 +14,15 @@ export function AuthPage() {
     e.preventDefault();
     setLoading(true);
     try {
+      if (mode === "forgot") {
+        const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw error;
+        toast.success("Reset link sent to your email. Check inbox/spam.");
+        setMode("signin");
+        return;
+      }
       if (mode === "signup") {
         if (!name.trim()) {
           toast.error("Please enter your name");
