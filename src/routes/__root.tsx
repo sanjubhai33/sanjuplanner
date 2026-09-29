@@ -183,6 +183,11 @@ function AppLayout() {
   }
 
   if (!session) {
+    // Ye pages bina login ke bhi khulne chahiye (password reset link, privacy, OAuth return).
+    const publicPaths = ["/reset-password", "/privacy", "/oauth/google/return"];
+    if (publicPaths.some((p) => window.location.pathname.startsWith(p))) {
+      return <Outlet />;
+    }
     return <AuthPage />;
   }
 
