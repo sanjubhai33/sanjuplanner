@@ -277,15 +277,17 @@ type TaskInsert = Database["public"]["Tables"]["tasks"]["Insert"];
     // Skip unchanged events (same etag) to avoid needless writes.
     if (prev && prev.etag && event.etag && prev.etag === event.etag) continue;
 
-    const startDate = event.start?.dateTime ? new Date(event.start.dateTime) : new Date(event.start?.date ?? "");
     let date = "";
     let startTime: string | null = null;
     let duration = 60;
     if (event.start?.dateTime) {
-      date = toISODate(startDate);
-      startTime = `${String(startDate.getHours()).padStart(2, "0")}:${String(startDate.getMinutes()).padStart(2, "0")}`;
+      // Server UTC me chalta hai — isliye event ki apni local date/time string se lo
+      // (e.g. "2026-10-14T09:00:00+05:30"), warna date/time shift ho jata hai.
+      const dt = event.start.dateTime;
+      date = dt.slice(0, 10);
+      startTime = dt.slice(11, 16);
       if (event.end?.dateTime) {
-        duration = Math.max(0, Math.round((new Date(event.end.dateTime).getTime() - startDate.getTime()) / 60000));
+        duration = Math.max(0, Math.round((new Date(event.end.dateTime).getTime() - new Date(dt).getTime()) / 60000));
       }
     } else if (event.start?.date) {
       date = event.start.date;
