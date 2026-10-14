@@ -275,7 +275,7 @@ type TaskInsert = Database["public"]["Tables"]["tasks"]["Insert"];
 
     const prev = existing.get(event.id);
     // Skip unchanged events (same etag) to avoid needless writes.
-    if (prev && prev.etag && event.etag && prev.etag === event.etag) continue;
+    // etag skip hataya: purane galat date wale tasks bhi sahi ho jayein.
 
     let date = "";
     let startTime: string | null = null;
