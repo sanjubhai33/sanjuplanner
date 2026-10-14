@@ -124,7 +124,7 @@ interface GoogleEvent {
 }
 
 function toISODate(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
 }
 
 function newId(): string {
@@ -275,17 +275,19 @@ type TaskInsert = Database["public"]["Tables"]["tasks"]["Insert"];
 
     const prev = existing.get(event.id);
     // Skip unchanged events (same etag) to avoid needless writes.
-    if (prev && prev.etag && event.etag && prev.etag === event.etag) continue;
+    // etag skip hataya: purane galat date wale tasks bhi sahi ho jayein.
 
-    const startDate = event.start?.dateTime ? new Date(event.start.dateTime) : new Date(event.start?.date ?? "");
     let date = "";
     let startTime: string | null = null;
     let duration = 60;
     if (event.start?.dateTime) {
-      date = toISODate(startDate);
-      startTime = `${String(startDate.getHours()).padStart(2, "0")}:${String(startDate.getMinutes()).padStart(2, "0")}`;
+      // Server UTC me chalta hai — isliye event ki apni local date/time string se lo
+      // (e.g. "2026-10-14T09:00:00+05:30"), warna date/time shift ho jata hai.
+      const dt = event.start.dateTime;
+      date = dt.slice(0, 10);
+      startTime = dt.slice(11, 16);
       if (event.end?.dateTime) {
-        duration = Math.max(0, Math.round((new Date(event.end.dateTime).getTime() - startDate.getTime()) / 60000));
+        duration = Math.max(0, Math.round((new Date(event.end.dateTime).getTime() - new Date(dt).getTime()) / 60000));
       }
     } else if (event.start?.date) {
       date = event.start.date;
@@ -327,7 +329,7 @@ type TaskInsert = Database["public"]["Tables"]["tasks"]["Insert"];
     if (!todo.title) continue;
     if (prev && prev.etag && todo.etag && prev.etag === todo.etag) continue;
 
-    const date = todo.due ? todo.due.slice(0, 10) : toISODate(new Date());
+    const date = todo.due ? todo.due.slice(0, 10) : toISODate(new Date(Date.now() + 330 * 60000));
     upserts.push({
       id: prev?.id ?? newId(),
       user_id: userId,
