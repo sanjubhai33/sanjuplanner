@@ -9,42 +9,27 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as CalendarRouteImport } from './routes/calendar'
-import { Route as JournalRouteImport } from './routes/journal'
-import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as UpcomingRouteImport } from './routes/upcoming'
-import { Route as TaskIdRouteImport } from './routes/task.$id'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as JournalRouteImport } from './routes/journal'
+import { Route as CalendarRouteImport } from './routes/calendar'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as TaskNewRouteImport } from './routes/task.new'
-import { Route as ApiPublicDailyReportRouteImport } from './routes/api/public/daily-report'
+import { Route as TaskIdRouteImport } from './routes/task.$id'
 import { Route as OauthGoogleReturnRouteImport } from './routes/oauth/google/return'
+import { Route as ApiPublicDailyReportRouteImport } from './routes/api/public/daily-report'
 import { Route as ApiPublicGoogleCalendarIndexRouteImport } from './routes/api/public/google-calendar/index'
-import { Route as ApiPublicGoogleCalendarCompleteRouteImport } from './routes/api/public/google-calendar/complete'
-import { Route as ApiPublicGoogleCalendarCompleteNativeRouteImport } from './routes/api/public/google-calendar/complete-native'
-import { Route as ApiPublicGoogleCalendarDisconnectRouteImport } from './routes/api/public/google-calendar/disconnect'
-import { Route as ApiPublicGoogleCalendarStartRouteImport } from './routes/api/public/google-calendar/start'
-import { Route as ApiPublicGoogleCalendarStatusRouteImport } from './routes/api/public/google-calendar/status'
 import { Route as ApiPublicGoogleCalendarSyncRouteImport } from './routes/api/public/google-calendar/sync'
+import { Route as ApiPublicGoogleCalendarStatusRouteImport } from './routes/api/public/google-calendar/status'
+import { Route as ApiPublicGoogleCalendarStartRouteImport } from './routes/api/public/google-calendar/start'
+import { Route as ApiPublicGoogleCalendarDisconnectRouteImport } from './routes/api/public/google-calendar/disconnect'
+import { Route as ApiPublicGoogleCalendarCompleteNativeRouteImport } from './routes/api/public/google-calendar/complete-native'
+import { Route as ApiPublicGoogleCalendarCompleteRouteImport } from './routes/api/public/google-calendar/complete'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CalendarRoute = CalendarRouteImport.update({
-  id: '/calendar',
-  path: '/calendar',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const JournalRoute = JournalRouteImport.update({
-  id: '/journal',
-  path: '/journal',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacyRoute = PrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
+const UpcomingRoute = UpcomingRouteImport.update({
+  id: '/upcoming',
+  path: '/upcoming',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -52,14 +37,24 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const UpcomingRoute = UpcomingRouteImport.update({
-  id: '/upcoming',
-  path: '/upcoming',
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TaskIdRoute = TaskIdRouteImport.update({
-  id: '/task/$id',
-  path: '/task/$id',
+const JournalRoute = JournalRouteImport.update({
+  id: '/journal',
+  path: '/journal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CalendarRoute = CalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TaskNewRoute = TaskNewRouteImport.update({
@@ -67,14 +62,19 @@ const TaskNewRoute = TaskNewRouteImport.update({
   path: '/task/new',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicDailyReportRoute = ApiPublicDailyReportRouteImport.update({
-  id: '/api/public/daily-report',
-  path: '/api/public/daily-report',
+const TaskIdRoute = TaskIdRouteImport.update({
+  id: '/task/$id',
+  path: '/task/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OauthGoogleReturnRoute = OauthGoogleReturnRouteImport.update({
   id: '/oauth/google/return',
   path: '/oauth/google/return',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicDailyReportRoute = ApiPublicDailyReportRouteImport.update({
+  id: '/api/public/daily-report',
+  path: '/api/public/daily-report',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicGoogleCalendarIndexRoute =
@@ -83,28 +83,10 @@ const ApiPublicGoogleCalendarIndexRoute =
     path: '/api/public/google-calendar/',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicGoogleCalendarCompleteRoute =
-  ApiPublicGoogleCalendarCompleteRouteImport.update({
-    id: '/api/public/google-calendar/complete',
-    path: '/api/public/google-calendar/complete',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicGoogleCalendarCompleteNativeRoute =
-  ApiPublicGoogleCalendarCompleteNativeRouteImport.update({
-    id: '/api/public/google-calendar/complete-native',
-    path: '/api/public/google-calendar/complete-native',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicGoogleCalendarDisconnectRoute =
-  ApiPublicGoogleCalendarDisconnectRouteImport.update({
-    id: '/api/public/google-calendar/disconnect',
-    path: '/api/public/google-calendar/disconnect',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicGoogleCalendarStartRoute =
-  ApiPublicGoogleCalendarStartRouteImport.update({
-    id: '/api/public/google-calendar/start',
-    path: '/api/public/google-calendar/start',
+const ApiPublicGoogleCalendarSyncRoute =
+  ApiPublicGoogleCalendarSyncRouteImport.update({
+    id: '/api/public/google-calendar/sync',
+    path: '/api/public/google-calendar/sync',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicGoogleCalendarStatusRoute =
@@ -113,10 +95,28 @@ const ApiPublicGoogleCalendarStatusRoute =
     path: '/api/public/google-calendar/status',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicGoogleCalendarSyncRoute =
-  ApiPublicGoogleCalendarSyncRouteImport.update({
-    id: '/api/public/google-calendar/sync',
-    path: '/api/public/google-calendar/sync',
+const ApiPublicGoogleCalendarStartRoute =
+  ApiPublicGoogleCalendarStartRouteImport.update({
+    id: '/api/public/google-calendar/start',
+    path: '/api/public/google-calendar/start',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicGoogleCalendarDisconnectRoute =
+  ApiPublicGoogleCalendarDisconnectRouteImport.update({
+    id: '/api/public/google-calendar/disconnect',
+    path: '/api/public/google-calendar/disconnect',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicGoogleCalendarCompleteNativeRoute =
+  ApiPublicGoogleCalendarCompleteNativeRouteImport.update({
+    id: '/api/public/google-calendar/complete-native',
+    path: '/api/public/google-calendar/complete-native',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicGoogleCalendarCompleteRoute =
+  ApiPublicGoogleCalendarCompleteRouteImport.update({
+    id: '/api/public/google-calendar/complete',
+    path: '/api/public/google-calendar/complete',
     getParentRoute: () => rootRouteImport,
   } as any)
 
@@ -260,32 +260,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/calendar': {
-      id: '/calendar'
-      path: '/calendar'
-      fullPath: '/calendar'
-      preLoaderRoute: typeof CalendarRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/journal': {
-      id: '/journal'
-      path: '/journal'
-      fullPath: '/journal'
-      preLoaderRoute: typeof JournalRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacy': {
-      id: '/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyRouteImport
+    '/upcoming': {
+      id: '/upcoming'
+      path: '/upcoming'
+      fullPath: '/upcoming'
+      preLoaderRoute: typeof UpcomingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -295,18 +274,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/upcoming': {
-      id: '/upcoming'
-      path: '/upcoming'
-      fullPath: '/upcoming'
-      preLoaderRoute: typeof UpcomingRouteImport
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/task/$id': {
-      id: '/task/$id'
-      path: '/task/$id'
-      fullPath: '/task/$id'
-      preLoaderRoute: typeof TaskIdRouteImport
+    '/journal': {
+      id: '/journal'
+      path: '/journal'
+      fullPath: '/journal'
+      preLoaderRoute: typeof JournalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calendar': {
+      id: '/calendar'
+      path: '/calendar'
+      fullPath: '/calendar'
+      preLoaderRoute: typeof CalendarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/task/new': {
@@ -316,11 +309,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TaskNewRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/daily-report': {
-      id: '/api/public/daily-report'
-      path: '/api/public/daily-report'
-      fullPath: '/api/public/daily-report'
-      preLoaderRoute: typeof ApiPublicDailyReportRouteImport
+    '/task/$id': {
+      id: '/task/$id'
+      path: '/task/$id'
+      fullPath: '/task/$id'
+      preLoaderRoute: typeof TaskIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/oauth/google/return': {
@@ -330,6 +323,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OauthGoogleReturnRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/daily-report': {
+      id: '/api/public/daily-report'
+      path: '/api/public/daily-report'
+      fullPath: '/api/public/daily-report'
+      preLoaderRoute: typeof ApiPublicDailyReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/google-calendar/': {
       id: '/api/public/google-calendar/'
       path: '/api/public/google-calendar'
@@ -337,32 +337,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicGoogleCalendarIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/google-calendar/complete': {
-      id: '/api/public/google-calendar/complete'
-      path: '/api/public/google-calendar/complete'
-      fullPath: '/api/public/google-calendar/complete'
-      preLoaderRoute: typeof ApiPublicGoogleCalendarCompleteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/google-calendar/complete-native': {
-      id: '/api/public/google-calendar/complete-native'
-      path: '/api/public/google-calendar/complete-native'
-      fullPath: '/api/public/google-calendar/complete-native'
-      preLoaderRoute: typeof ApiPublicGoogleCalendarCompleteNativeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/google-calendar/disconnect': {
-      id: '/api/public/google-calendar/disconnect'
-      path: '/api/public/google-calendar/disconnect'
-      fullPath: '/api/public/google-calendar/disconnect'
-      preLoaderRoute: typeof ApiPublicGoogleCalendarDisconnectRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/google-calendar/start': {
-      id: '/api/public/google-calendar/start'
-      path: '/api/public/google-calendar/start'
-      fullPath: '/api/public/google-calendar/start'
-      preLoaderRoute: typeof ApiPublicGoogleCalendarStartRouteImport
+    '/api/public/google-calendar/sync': {
+      id: '/api/public/google-calendar/sync'
+      path: '/api/public/google-calendar/sync'
+      fullPath: '/api/public/google-calendar/sync'
+      preLoaderRoute: typeof ApiPublicGoogleCalendarSyncRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/google-calendar/status': {
@@ -372,11 +351,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicGoogleCalendarStatusRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/google-calendar/sync': {
-      id: '/api/public/google-calendar/sync'
-      path: '/api/public/google-calendar/sync'
-      fullPath: '/api/public/google-calendar/sync'
-      preLoaderRoute: typeof ApiPublicGoogleCalendarSyncRouteImport
+    '/api/public/google-calendar/start': {
+      id: '/api/public/google-calendar/start'
+      path: '/api/public/google-calendar/start'
+      fullPath: '/api/public/google-calendar/start'
+      preLoaderRoute: typeof ApiPublicGoogleCalendarStartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/google-calendar/disconnect': {
+      id: '/api/public/google-calendar/disconnect'
+      path: '/api/public/google-calendar/disconnect'
+      fullPath: '/api/public/google-calendar/disconnect'
+      preLoaderRoute: typeof ApiPublicGoogleCalendarDisconnectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/google-calendar/complete-native': {
+      id: '/api/public/google-calendar/complete-native'
+      path: '/api/public/google-calendar/complete-native'
+      fullPath: '/api/public/google-calendar/complete-native'
+      preLoaderRoute: typeof ApiPublicGoogleCalendarCompleteNativeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/google-calendar/complete': {
+      id: '/api/public/google-calendar/complete'
+      path: '/api/public/google-calendar/complete'
+      fullPath: '/api/public/google-calendar/complete'
+      preLoaderRoute: typeof ApiPublicGoogleCalendarCompleteRouteImport
       parentRoute: typeof rootRouteImport
     }
   }

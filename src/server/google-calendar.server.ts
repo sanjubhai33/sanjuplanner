@@ -124,7 +124,7 @@ interface GoogleEvent {
 }
 
 function toISODate(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
 }
 
 function newId(): string {
@@ -329,7 +329,7 @@ type TaskInsert = Database["public"]["Tables"]["tasks"]["Insert"];
     if (!todo.title) continue;
     if (prev && prev.etag && todo.etag && prev.etag === todo.etag) continue;
 
-    const date = todo.due ? todo.due.slice(0, 10) : toISODate(new Date());
+    const date = todo.due ? todo.due.slice(0, 10) : toISODate(new Date(Date.now() + 330 * 60000));
     upserts.push({
       id: prev?.id ?? newId(),
       user_id: userId,
